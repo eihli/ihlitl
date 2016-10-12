@@ -1,5 +1,5 @@
 require 'http'
-require 'transform'
+require_relative './transform'
 
 class Source
   class << self

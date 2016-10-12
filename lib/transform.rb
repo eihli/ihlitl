@@ -1,4 +1,4 @@
-require 'destination'
+require_relative './destination'
 
 class Transform
   class << self
