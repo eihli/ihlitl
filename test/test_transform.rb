@@ -6,6 +6,17 @@ class TestTransform < MiniTest::Test
     @payload = { package: {} }
   end
 
+  def deep_copy(hash, accum = Hash.new)
+    hash.each do |key, value|
+      if value.is_a? Hash
+        accum[key] = deep_copy value
+      else
+        accum[key] = value
+      end
+    end
+    accum
+  end
+
   def test_run_sends_payload_to_destination
     mock = MiniTest::Mock.new
     mock.expect :call, nil, [@payload]
