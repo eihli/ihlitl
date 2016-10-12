@@ -1,5 +1,5 @@
 class IhliTL
-  def self.run
+  def self.run(pipeline_manager)
     puts "Do the ETL"
   end
 end
