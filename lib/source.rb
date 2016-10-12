@@ -16,7 +16,7 @@ class Source
     end
 
     def deliver(payload)
-      Transform.run(payload)
+      Transform.run(payload, options)
     end
   end
 end
