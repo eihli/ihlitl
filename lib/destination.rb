@@ -2,13 +2,13 @@ require 'http'
 
 class Destination
   class << self
-    def run(payload)
+    def run(payload, options)
       # Validate, deliver, or divert could blow up or fail.
       # Perhaps throwing from validate/deliver and catching divert?
       if validate(payload)
-        deliver(payload)
+        deliver(payload, options)
       else
-        divert(payload)
+        divert(payload, options)
       end
     end
 
@@ -37,14 +37,14 @@ class Destination
 
     private
 
-    def divert(payload)
-      HTTP.post(payload[:package][:diversion_address])
+    def divert(payload, options)
+      HTTP.post(payload, options)
       # Log to DB, send an email...
       puts payload[:errors]
     end
 
-    def deliver(payload)
-      HTTP.post(payload[:package][:delivery_address])
+    def deliver(payload, options)
+      HTTP.post(payload, options)
       # Save to DB, POST to external API...
       puts "Make POST to API"
     end
