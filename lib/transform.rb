@@ -14,6 +14,7 @@ class Transform
     end
 
     def transform(payload)
+      payload[:package][:delivery_address] = 'some_delivery_address'
       payload
     end
   end

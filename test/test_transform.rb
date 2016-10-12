@@ -23,6 +23,20 @@ class TestTransform < MiniTest::Test
     Destination.stub :run, mock do
       Transform.run @payload
     end
+
+    mock.verify
+  end
+
+  def test_payload_gets_transformed
+    transformed_payload = deep_copy(@payload)
+    transformed_payload[:package][:delivery_address] = 'some_delivery_address'
+    mock = MiniTest::Mock.new
+    mock.expect :call, nil, [transformed_payload]
+
+    Destination.stub :run, mock do
+      Transform.run @payload
+    end
+
     mock.verify
   end
 end
