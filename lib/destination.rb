@@ -3,9 +3,8 @@ require 'http'
 class Destination
   class << self
     def run(payload)
-      # Instead of calling divert inside validate_inbound
-      # we can raise and rescue here. Both validate_inbound
-      # and deliver can fail. Unify error handling
+      # Validate, deliver, or divert could blow up or fail.
+      # Perhaps throwing from validate/deliver and catching divert?
       if validate(payload)
         deliver(payload)
       else
@@ -36,7 +35,6 @@ class Destination
       HTTP.post(payload[:package][:delivery_address])
       # Save to DB, POST to external API...
       puts "Make POST to API"
-      # Rescue/throw
     end
   end
 end
