@@ -15,11 +15,23 @@ class Destination
     def validate(payload)
       # Call to shared validator or define custom validation here
       payload[:errors] ||= []
+
+      if payload[:package][:diversion_address] == nil
+        payload[:errors] << "Payload package requires a diversion address"
+      end
+
+      if payload[:package][:delivery_address] == nil
+        payload[:errors] << "Payload package requires a delivery address"
+      end
+
       if payload[:package] == nil
-        payload[:errors] << "Package not in payload."
-        false
+        payload[:errors] << "Package requires a payload"
+      end
+
+      if payload[:errors].length > 0
+        return false
       else
-        true
+        return true
       end
     end
 

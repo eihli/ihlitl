@@ -14,8 +14,10 @@ class TestDestination < MiniTest::Test
     mock.expect :call, nil, ['success_url']
 
     HTTP.stub :post, mock do
-      @payload[:package][:delivery_address] = "success_url"
-      Destination.run @payload
+      Destination.stub :validate, true do
+        @payload[:package][:delivery_address] = "success_url"
+        Destination.run @payload
+      end
     end
 
     mock.verify
