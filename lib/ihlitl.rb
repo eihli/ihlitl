@@ -1,5 +1,3 @@
-class IhliTL
-  def self.run(pipeline_manager)
-    puts "Do the ETL"
-  end
-end
+require_relative './source'
+require_relative './destination'
+require_relative './transform'
