@@ -4,14 +4,14 @@ require 'transform'
 class Source
   class << self
 
-    def run(payload)
-      deliver(transform(payload))
+    def run(payload, options)
+      deliver(transform(payload, options))
     end
 
     private
 
-    def transform(payload)
-      response = HTTP.post(payload[:source_address], payload[:credentials])
+    def transform(payload, options)
+      response = HTTP.post(options[:source_address], options[:credentials])
       payload[:package] = response
     end
 
