@@ -1,4 +1,5 @@
 require 'minitest/autorun'
+require_relative '../lib/helpers'
 require_relative '../lib/pipeline_manager'
 
 class TestPipelineManager < MiniTest::Test
@@ -8,7 +9,7 @@ class TestPipelineManager < MiniTest::Test
   def test_run_calls_transform_on_each_pipeline_item
     mock_transforms = Array.new(3).map do |t|
       mock = MiniTest::Mock.new
-      mock.expect :run, nil, [Hash]
+      mock.expect :run, Hash.new, [Hash]
       [mock]
     end
 

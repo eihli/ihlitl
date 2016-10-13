@@ -6,14 +6,16 @@ class PipelineManager
     attr_accessor :pipeline, :payload
 
     def run
+      deliver(process(payload))
+    end
+
+    def process(payload)
       pipeline.each do |line|
-        args = line.concat [payload]
         transform = line[0]
-        args = line[1..-1]
+        args = [payload].concat line[1..-1]
         payload = transform.run(*args)
       end
-
-      deliver(payload)
+      payload
     end
 
     def deliver(payload)
