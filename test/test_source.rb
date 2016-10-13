@@ -23,7 +23,7 @@ class TestSource < MiniTest::Test
     http_mock.expect :call, transformed_payload, [@options[:source_address], @options[:credentials]]
 
     transform_mock = MiniTest::Mock.new
-    transform_mock.expect :call, nil, [transformed_payload]
+    transform_mock.expect :call, nil, [transformed_payload, @options]
 
     Transform.stub :deliver, transform_mock do
       HTTP.stub :post, http_mock do

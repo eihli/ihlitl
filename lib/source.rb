@@ -5,7 +5,7 @@ class Source
   class << self
 
     def run(payload, options)
-      deliver(transform(payload, options))
+      deliver(transform(payload, options), options)
     end
 
     private
@@ -15,7 +15,7 @@ class Source
       payload[:package] = response
     end
 
-    def deliver(payload)
+    def deliver(payload, options)
       Transform.run(payload, options)
     end
   end
