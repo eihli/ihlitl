@@ -10,10 +10,21 @@ class NFLTransform
   end
 end
 
+class WeatherTransform
+  class << self
+    def run(payload, username, password)
+      payload[:temp_f] = '66.5'
+      payload[:credentials] = {username: username, password: password}
+      payload
+    end
+  end
+end
+
 class NFLPipelineManager < PipelineManager
   @payload = {}
   @pipeline = [
-    [NFLTransform, '12345']
+    [NFLTransform, '12345'],
+    [WeatherTransform, 'some_username', 'some_password']
   ]
 end
 
