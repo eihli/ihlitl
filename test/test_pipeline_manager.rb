@@ -19,4 +19,31 @@ class TestPipelineManager < MiniTest::Test
       m[0].verify
     end
   end
+
+  def test_run_calls_deliver_with_transformed_payload
+    payload = {}
+    keys = [:a, :b, :c]
+    value = 0
+    mock_transforms = Array.new(3).map do |t|
+      transformed_payload = deep_copy payload
+      transformed_payload[keys[value]] = value
+      value += 1
+
+      mock = MiniTest::Mock.new
+      mock.expect :run, transformed_payload, [payload]
+
+      payload = transformed_payload
+      [mock]
+    end
+
+    PipelineManager.pipeline = mock_transforms
+
+    mock = MiniTest::Mock.new
+    mock.expect :call, nil, [{a: 0, b: 1, c: 2}]
+    PipelineManager.stub :deliver, mock do
+      PipelineManager.run
+    end
+
+    mock.verify
+  end
 end
