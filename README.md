@@ -20,3 +20,25 @@ SomePipelineManager.load(SomeSource)
   .delivers_to(SomeOtherTransform).with(SomeOtherContract)
   .delivers_to(SomeDestination).with(SomeDestinationContract)
 ```
+
+```
+class PipelineManager
+pipeline = [
+[NFLTransform, credentials, args],
+[WeatherTransform, api_key, other_args],
+[StockPriceTransform, credentials]
+]
+
+payload = {
+initial_key: 'initial_values'
+}
+
+destination = ConsoleDestination
+
+def run
+# For each pipeline
+  # Call run on the transform with args and payload
+end
+
+end
+```
