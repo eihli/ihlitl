@@ -4,19 +4,34 @@ API to API ETL
 
 ## Current State (Oct 13th)
 
+### Pipeline Managers
+
 - PipelineManager is instantiated with transforms
   - Transforms look like:
   - `[[TransformClass, arg1, arg2], [OtherTransformClass, arg1]]`
   - First transform typically a Source
   - Last transform must be a Destination
-- PipelineManager calls run on the first transform
-  - This kicks off the chain. Each transform is responsible for calling run on the next
-- Sources, Transforms, and Destinations all have similar APIs
-  - They are initialized with a destination (except Destinations)
-  - They have a run method which takes a payload
-  - They have a deliver method which delivers their payload
-    - Source and Transform delivers call deliver on the destination they were instantiated with.
-    - Destination delivers go outside of the Pipeline
+- On `initialize`
+  - Instantiates each transform with args
+  - This is where args would be pulled from external sources like ENV variables or DB calls
+- On `run`
+  - Calls run on first transform
+  - This kicks off the chain
+  - Each transform will call run on the next transform in the list, passing in its modified `payload`
+
+### Sources and Transforms
+
+- Sources and transforms have similar APIs
+  - Initialized with another transform to which they send their modified payload
+  - Must define private method `transform` which takes a payload, modifies it (optional), and returns it
+  - Public method `run` takes a payload, transforms it, and delivers the result to the next transform
+
+### Destinations
+
+- Initialized with any optional args required to send the payload to its final destination
+- Must define private method `deliver` which takes a payload and sends it to some external system
+- Public method `run` to match with Transform API so Destination can be in list of Transforms passed to PipelineManager
+  - TODO: Sources, Transforms, and Destinations all inherit from BaseTransform?
 
 ## See an Example
 
