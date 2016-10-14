@@ -1,5 +1,3 @@
-require_relative './destination'
-
 class Transform
   def initialize(destination)
     # Pass in credentials or any pre-reqs/setup here
