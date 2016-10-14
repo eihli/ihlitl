@@ -28,4 +28,17 @@ class TestTransform < MiniTest::Test
     @destination_mock.expect :run, nil, [payload + '_transformed']
     @transform.run payload
   end
+
+  class OptionalArgSubTransform < Transform
+    attr_accessor :some_arg
+    def initialize(destination, some_arg)
+      @some_arg = some_arg
+      super
+    end
+  end
+
+  def test_can_be_initialized_with_optional_args
+    transform = OptionalArgSubTransform.new('some_destination', 'some_arg')
+    assert_equal transform.some_arg, 'some_arg'
+  end
 end

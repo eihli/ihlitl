@@ -1,5 +1,5 @@
 class Transform
-  def initialize(destination)
+  def initialize(destination, *args)
     # Pass in credentials or any pre-reqs/setup here
     @destination = destination
   end
