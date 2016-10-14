@@ -4,31 +4,29 @@ require_relative '../lib/transform'
 
 class TestTransform < MiniTest::Test
   def setup
-    @options = {}
-    @payload = { package: {} }
+    @destination_mock = MiniTest::Mock.new
+    @transform = Transform.new @destination_mock
   end
 
   def test_run_sends_payload_to_destination
-    mock = MiniTest::Mock.new
-    mock.expect :call, nil, [@payload]
-    Destination.stub :run, mock do
-      Transform.run @payload
-    end
+    payload = 'some_payload'
 
-    mock.verify
+    @destination_mock.expect :run, nil, [payload]
+    @transform.run payload
+    @destination_mock.verify
+  end
+
+  class SubTransform < Transform
+    def transform(payload)
+      payload = payload + '_transformed'
+    end
   end
 
   def test_payload_gets_transformed
-    transformed_payload = deep_copy(@payload)
-    transformed_payload[:package][:delivery_address] = 'some_delivery_address'
+    payload = 'some_payload'
+    @transform = SubTransform.new @destination_mock
 
-    mock = MiniTest::Mock.new
-    mock.expect :call, nil, [transformed_payload]
-
-    Destination.stub :run, mock do
-      Transform.run @payload
-    end
-
-    mock.verify
+    @destination_mock.expect :run, nil, [payload + '_transformed']
+    @transform.run payload
   end
 end
