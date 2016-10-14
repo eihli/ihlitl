@@ -13,7 +13,7 @@ class PipelineManager
       destination_class = transform_def[0]
       if transform_def.length > 1 # we have args
         args = transform_def[1..-1]
-        return [destination_class.new(args)]
+        return [destination_class.new(*args)]
       else
         return [destination_class.new]
       end
