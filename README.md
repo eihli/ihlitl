@@ -18,6 +18,14 @@ API to API ETL
     - Source and Transform delivers call deliver on the destination they were instantiated with.
     - Destination delivers go outside of the Pipeline
 
+## See an Example
+
+- `/examples/nfl.rb`
+- Defines several transforms
+- Defines a Destination which just puts payload to console
+- Instantiates a pipeline manager and calls run
+- Run it and see it in action with `ruby example/nfl.rb`
+
 ## Ideas
 
 - Shareable contracts
