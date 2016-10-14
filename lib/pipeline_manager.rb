@@ -19,13 +19,17 @@ class PipelineManager
       end
     else
       transform_def = transforms[0]
-      destination_transform = instantiate_transforms(transforms[1..-1])
+      destination_transforms = instantiate_transforms(transforms[1..-1])
       transform_class = transform_def[0]
       if transform_def.length > 1 # we have args
         args = transform_def[1..-1]
-        return transform_class.new(destination_transform, args)
+        transforms = [transform_class.new(destination_transforms[0], args)]
+          .concat(destination_transforms)
+        return transforms
       else
-        return transform_class.new(destination_transform)
+        transforms = [transform_class.new(destination_transforms[0])]
+          .concat(destination_transforms)
+        return transforms
       end
     end
   end

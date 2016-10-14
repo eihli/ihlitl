@@ -31,5 +31,24 @@ class TestPipelineManager < MiniTest::Test
 
     assert_equal pipeline.transforms[0], destination
   end
+
+  def test_multiple_transforms_with_no_args
+    transform_mock = MiniTest::Mock.new
+    destination_mock = MiniTest::Mock.new
+
+    transform = Object.new
+    destination = Object.new
+
+    transform_mock.expect :new, transform, [destination]
+    destination_mock.expect :new, destination
+
+    transforms = [[transform_mock], [destination_mock]]
+    pipeline = PipelineManager.new transforms, {}
+
+    transform_mock.verify
+    destination_mock.verify
+
+    assert_equal pipeline.transforms, [transform, destination]
+  end
 end
 
