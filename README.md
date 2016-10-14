@@ -2,6 +2,20 @@
 
 API to API ETL
 
+## Current State
+
+- PipelineManager is instantiated with transforms
+  - Transforms look like:
+  - `[[TransformClass, arg1, arg2], [OtherTransformClass, arg1]]`
+  - First transform typically a Source
+  - Last transform must be a Destination
+- Sources, Transforms, and Destinations all have similar APIs
+  - They are initialized with a destination (except Destinations)
+  - They have a run method which takes a payload
+  - They have a deliver method which delivers their payload
+    - Source and Transform delivers call deliver on the destination they were instantiated with.
+    - Destination delivers go outside of the Pipeline
+
 ## Ideas
 
 - Shareable contracts
