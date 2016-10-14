@@ -1,5 +1,4 @@
 require 'minitest/autorun'
-require_relative '../lib/helpers'
 require_relative '../lib/transform'
 
 class TestTransform < MiniTest::Test
