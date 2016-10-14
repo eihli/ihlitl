@@ -1,16 +1,19 @@
 require_relative './destination'
 
 class Transform
-  class << self
+  def initialize
+    # Pass in credentials or any pre-reqs/setup here
+  end
 
-    def run(payload, options)
-      deliver(transform(payload), options)
+  class << self
+    def run(payload)
+      deliver(transform(payload))
     end
 
     private
 
-    def deliver(payload, options)
-      Destination.run payload, options
+    def deliver(payload)
+      Destination.run payload
     end
 
     def transform(payload)

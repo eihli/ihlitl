@@ -10,9 +10,9 @@ class TestTransform < MiniTest::Test
 
   def test_run_sends_payload_to_destination
     mock = MiniTest::Mock.new
-    mock.expect :call, nil, [@payload, @options]
+    mock.expect :call, nil, [@payload]
     Destination.stub :run, mock do
-      Transform.run @payload, @options
+      Transform.run @payload
     end
 
     mock.verify
@@ -23,10 +23,10 @@ class TestTransform < MiniTest::Test
     transformed_payload[:package][:delivery_address] = 'some_delivery_address'
 
     mock = MiniTest::Mock.new
-    mock.expect :call, nil, [transformed_payload, @options]
+    mock.expect :call, nil, [transformed_payload]
 
     Destination.stub :run, mock do
-      Transform.run @payload, @options
+      Transform.run @payload
     end
 
     mock.verify
