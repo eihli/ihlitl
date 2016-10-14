@@ -1,10 +1,11 @@
+require 'http'
 require_relative '../lib/transform'
 require_relative '../lib/destination'
 require_relative '../lib/pipeline_manager'
 
 class NFLTransform < Transform
   def initialize(destination, api_key)
-    @api_key
+    @api_key = api_key
     super
   end
 
@@ -16,16 +17,24 @@ class NFLTransform < Transform
 end
 
 class WeatherTransform < Transform
-  def initialize(destination, username, password)
-    @username = username
-    @password = password
+  def initialize(destination, api_key)
+    @api_key = api_key
     super
   end
 
   def transform(payload)
-    payload[:temp_f] = '66.5'
-    payload[:credentials] = {username: @username, password: @password}
+    payload[:temp_f] =  response_json["current_observation"]["temp_f"]
     payload
+  end
+
+  private
+
+  def api_url
+    "http://api.wunderground.com/api/#{@api_key}/conditions/q/CA/San_Francisco.json"
+  end
+
+  def response_json
+    JSON.parse(HTTP.get(api_url))
   end
 end
 
@@ -43,9 +52,11 @@ class NFLPipelineManager < PipelineManager
   end
 end
 
+weather_api_key = '4aaeba74af287db4'
+
 pipeline = [
   [NFLTransform, '12345'],
-  [WeatherTransform, 'some_username', 'some_password'],
+  [WeatherTransform, weather_api_key],
   [SomeDestination]
 ]
 
