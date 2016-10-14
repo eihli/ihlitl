@@ -35,9 +35,7 @@ class PipelineManager
   end
 
   def run
-    @transforms.each do |transform|
-      transform.run(@payload)
-    end
+    @transforms[0].run(@payload)
   end
 end
 

@@ -72,5 +72,22 @@ class TestPipelineManager < MiniTest::Test
     transform_mock.verify
     destination_mock.verify
   end
-end
 
+  def test_run_calls_run_on_first_transform
+    # This is all we need to test since the first transform
+    # calls run on its destination
+
+    transform_mock_new = MiniTest::Mock.new
+    transform_mock_run = MiniTest::Mock.new
+
+    transform_mock_new.expect :new, transform_mock_run
+    payload = 'some_payload'
+    transform_mock_run.expect :run, nil, [payload]
+
+    transforms = [[transform_mock_new]]
+
+    pipeline = PipelineManager.new transforms, payload
+    pipeline.run
+    transform_mock_run.verify
+  end
+end
