@@ -12,12 +12,10 @@ class TestRetriable < MiniTest::Test
 
   def test_calls_original_deliver_method
     mock = MiniTest::Mock.new
-    mock.expect :call, nil
     transform = TransformClass.new
-    transform.stub :deliver, mock do
-      transform.deliver
-    end
-    mock.verify
+    assert_equal transform.deliver, 'original'
   end
+
+  def test_
 end
 
