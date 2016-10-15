@@ -102,7 +102,7 @@ class TestPipelineManager < MiniTest::Test
       pipeline = IhliTL::PipelineManager.new [[transform_mock_class]], {}
     end
 
-    err = IhliTL::TransformError.new 'payload'
+    err = IhliTL::TransformError.new transform_mock, 'payload'
     error = -> (e) { raise err }
     detour_mock = MiniTest::Mock.new
     detour_mock.expect :call, nil, [err]
