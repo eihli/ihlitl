@@ -2,6 +2,7 @@ module IhliTL
   class Contract
     def initialize(subject)
       @subject = subject
+      @errors = []
     end
 
     def resolve
@@ -13,10 +14,14 @@ module IhliTL
     end
 
     def verify(subject)
-      clauses.map do |clause|
-        clause.call(subject)
+      @errors = clauses.map do |clause|
+        if clause.call(subject)
+          nil
+        else
+          "Validation failed on #{clause}"
+        end
       end
-      subject
+      @errors.compact.empty?
     end
 
     def perform_work(subject)
