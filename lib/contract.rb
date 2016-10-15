@@ -5,11 +5,22 @@ module IhliTL
     end
 
     def resolve
-      verify
+      verify(perform_work(@subject))
     end
 
-    def verify
-      @subject
+    def verify(subject)
+      clauses.map do |clause|
+        clause.call(subject)
+      end
+      subject
+    end
+
+    def perform_work(subject)
+      subject
+    end
+
+    def clauses
+      []
     end
   end
 end
