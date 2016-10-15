@@ -1,9 +1,10 @@
 require 'http'
+require_relative '../lib/exceptions'
 require_relative '../lib/transform'
 require_relative '../lib/destination'
 require_relative '../lib/pipeline_manager'
 
-class NFLTransform < Transform
+class NFLTransform < IhliTL::Transform
   def initialize(destination, api_key)
     @api_key = api_key
     super
@@ -16,7 +17,7 @@ class NFLTransform < Transform
   end
 end
 
-class WeatherTransform < Transform
+class WeatherTransform < IhliTL::Transform
   def initialize(destination, api_key)
     @api_key = api_key
     super
@@ -24,6 +25,7 @@ class WeatherTransform < Transform
 
   def transform(payload)
     payload[:temp_f] =  response_json["current_observation"]["temp_f"]
+    raise IhliTL::TransformError.new(self, payload)
     payload
   end
 
@@ -39,14 +41,14 @@ class WeatherTransform < Transform
 end
 
 # Inherit from Destination?
-class SomeDestination < Destination
+class SomeDestination < IhliTL::Destination
   def deliver(payload)
     puts 'Delivery sent!'
     puts payload
   end
 end
 
-class NFLPipelineManager < PipelineManager
+class NFLPipelineManager < IhliTL::PipelineManager
   def deliver(payload)
     SomeDestination.deliver(payload)
   end
