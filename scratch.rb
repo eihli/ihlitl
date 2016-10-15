@@ -1,23 +1,47 @@
-class Deliverable
-  def deliver(payload)
-    puts payload
-  end
-end
-
-def attempt_to_do_something
+def attempt_to_deliver
   rand(10) > 8
 end
 
-class Retriable
-  def initialize(retriable, method, conditions)
-    @retriable = retriable
-    @method = method
-    @conditions = conditions
+class Deliverable
+  def deliver
+    if attempt_to_deliver
+      puts "Delivered"
+      true
+    else
+      false
+    end
   end
 
-  def check_conditions
-    @conditions.map do |condition|
-      puts condition
+  def detour
+    puts "Could not deliver. Taking a detour."
+  end
+end
+
+class Retriable
+  def initialize(retriable, attempt_method, failure_method, conditions)
+    self.class.class_eval do
+      define_method(attempt_method) {
+        puts "Trying to perform #{attempt_method} on #{retriable}"
+        puts "Checking exit conditions."
+        if check(conditions).any? { |condition| condition }
+          puts "Some exit condition was true. Calling some failure callback."
+          retriable.send(failure_method)
+        else
+          puts "No exit conditions evaluated to true."
+          puts "Trying to do something that might fail."
+          if retriable.send(attempt_method)
+            puts "It worked. We can stop trying."
+          else
+            puts "It didn't work. We're trying again."
+            send(attempt_method)
+          end
+        end
+      }
+    end
+  end
+
+  def check(conditions)
+    conditions.map do |condition|
       result = condition[:predicate].call(*condition[:args])
       condition[:after].call(condition)
       result
@@ -32,40 +56,8 @@ conditions = [
     after: -> (condition) { condition[:args][0] += 1 }
   }
 ]
-retriable = Retriable.new({}, {}, conditions)
-puts retriable.check_conditions
 
-class Retriable
-  def initialize(deliverable, max_attempts)
-    @deliverable = deliverable
-    @max_attempts = max_attempts
-  end
+deliverable = Deliverable.new
+retriable_delivery = Retriable.new(deliverable, :deliver, :detour, conditions)
+puts retriable_delivery.deliver
 
-  def deliver(attempt = 0, *args)
-    if attempt.class == Hash
-      *args = attempt
-      attempt = 0
-    end
-
-    if attempt > @max_attempts
-      puts "We broke"
-    else
-      if attempt_to_do_something
-        puts "Delivery successful on attempt #{attempt}"
-      else
-        deliver(attempt + 1, *args)
-      end
-    end
-  end
-end
-
-
-delivery = Deliverable.new
-retriable_delivery = Retriable.new(delivery, 5)
-
-retriable_delivery.deliver({name: 'eric'})
-retriable_delivery.deliver({name: 'eric'})
-retriable_delivery.deliver({name: 'eric'})
-retriable_delivery.deliver({name: 'eric'})
-retriable_delivery.deliver({name: 'eric'})
-retriable_delivery.deliver({name: 'eric'})
