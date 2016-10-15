@@ -1,5 +1,6 @@
 require 'minitest/autorun'
 require_relative '../lib/helpers'
+require_relative '../lib/exceptions'
 require_relative '../lib/pipeline_manager'
 require_relative '../lib/transform'
 
@@ -89,5 +90,29 @@ class TestPipelineManager < MiniTest::Test
     pipeline = IhliTL::PipelineManager.new transforms, payload
     pipeline.run
     transform_mock_run.verify
+  end
+
+  def test_calls_detour_on_exception
+    transform_mock_class = Class.new
+    transform_mock = Object.new
+    def transform_mock.run(payload); end
+
+    pipeline = nil
+    transform_mock_class.stub :new, transform_mock do
+      pipeline = IhliTL::PipelineManager.new [[transform_mock_class]], {}
+    end
+
+    err = IhliTL::TransformError.new 'payload'
+    error = -> (e) { raise err }
+    detour_mock = MiniTest::Mock.new
+    detour_mock.expect :call, nil, [err]
+
+    pipeline.stub :detour, detour_mock do
+      transform_mock.stub :run, error do
+        pipeline.run
+      end
+    end
+
+    detour_mock.verify
   end
 end

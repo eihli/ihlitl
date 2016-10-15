@@ -35,8 +35,14 @@ module IhliTL
       end
     end
 
-  def run
-    @transforms[0].run(@payload)
+    def run
+      @transforms[0].run(@payload)
+    rescue IhliTL::TransformError => e
+      detour(e)
+    end
+
+    def detour(e)
+    end
   end
 end
 
