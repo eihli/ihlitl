@@ -13,7 +13,7 @@ class TestContract < MiniTest::Test
 
   def test_resolve_calls_verify
     mock = MiniTest::Mock.new
-    mock.expect :call, nil, [@subject]
+    mock.expect :call, true, [@subject]
     @contract.stub :verify, mock do
       @contract.resolve
     end
@@ -22,7 +22,7 @@ class TestContract < MiniTest::Test
 
   def test_verify_calls_perform_work
     mock = MiniTest::Mock.new
-    mock.expect :call, nil, [@subject]
+    mock.expect :call, true, [@subject]
     @contract.stub :perform_work, mock do
       @contract.resolve
     end
@@ -42,5 +42,13 @@ class TestContract < MiniTest::Test
 
     mock1.verify
     mock2.verify
+  end
+
+  def test_resolve_raises_if_verify_is_false
+    @contract.stub :verify, false do
+      assert_raises do
+        @contract.resolve
+      end
+    end
   end
 end

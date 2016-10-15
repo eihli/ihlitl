@@ -5,7 +5,11 @@ module IhliTL
     end
 
     def resolve
-      verify(perform_work(@subject))
+      if verify(perform_work(@subject))
+        @subject
+      else
+        raise "Contract Error"
+      end
     end
 
     def verify(subject)
