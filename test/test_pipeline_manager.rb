@@ -13,7 +13,7 @@ class TestPipelineManager < MiniTest::Test
     mock.expect :new, destination
 
     transforms = [[mock]]
-    pipeline = PipelineManager.new transforms, {}
+    pipeline = IhliTL::PipelineManager.new transforms, {}
     mock.verify
 
     assert_equal pipeline.transforms[0], destination
@@ -26,7 +26,7 @@ class TestPipelineManager < MiniTest::Test
     mock.expect :new, destination, some_args
 
     transforms = [[mock, *some_args]]
-    pipeline = PipelineManager.new transforms, {}
+    pipeline = IhliTL::PipelineManager.new transforms, {}
     mock.verify
 
     assert_equal pipeline.transforms[0], destination
@@ -43,7 +43,7 @@ class TestPipelineManager < MiniTest::Test
     destination_mock.expect :new, destination
 
     transforms = [[transform_mock], [destination_mock]]
-    pipeline = PipelineManager.new transforms, {}
+    pipeline = IhliTL::PipelineManager.new transforms, {}
 
     transform_mock.verify
     destination_mock.verify
@@ -67,7 +67,7 @@ class TestPipelineManager < MiniTest::Test
       [transform_mock, *transform_args],
       [destination_mock, *destination_args]
     ]
-    pipeline = PipelineManager.new transforms, {}
+    pipeline = IhliTL::PipelineManager.new transforms, {}
 
     transform_mock.verify
     destination_mock.verify
@@ -86,7 +86,7 @@ class TestPipelineManager < MiniTest::Test
 
     transforms = [[transform_mock_new]]
 
-    pipeline = PipelineManager.new transforms, payload
+    pipeline = IhliTL::PipelineManager.new transforms, payload
     pipeline.run
     transform_mock_run.verify
   end

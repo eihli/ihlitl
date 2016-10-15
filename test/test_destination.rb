@@ -4,7 +4,7 @@ require_relative '../lib/destination'
 
 class TestDestination < MiniTest::Test
   def setup
-    @destination = Destination.new
+    @destination = IhliTL::Destination.new
   end
 
   def test_default_delivery_behavior_returns_payload

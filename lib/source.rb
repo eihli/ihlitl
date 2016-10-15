@@ -1,5 +1,4 @@
 require 'http'
-require_relative './transform'
 
 module IhliTL
   class Source < Transform
