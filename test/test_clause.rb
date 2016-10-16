@@ -17,7 +17,7 @@ class ClauseTest < MiniTest::Test
     }
     subject = { prop: '6' }
 
-    clause = Clause.new @description, [option]
+    clause = IhliTL::Clause.new @description, [option]
     errors = clause.verify(subject)
     assert_equal errors[0].message, "Error: expected #{option[:comparator]}, #{subject[:prop]}, #{option[:value]} with subject #{subject}"
   end
@@ -31,7 +31,7 @@ class ClauseTest < MiniTest::Test
     }
     subject = { prop: '5' }
 
-    clause = Clause.new @description, [option]
+    clause = IhliTL::Clause.new @description, [option]
     assert_equal clause.verify(subject), true
   end
 
@@ -44,7 +44,7 @@ class ClauseTest < MiniTest::Test
     }
     subject = { existant_prop: '5' }
 
-    clause = Clause.new @description, [option]
+    clause = IhliTL::Clause.new @description, [option]
     errors = clause.verify(subject)
     assert_equal errors[0].class, IhliTL::ClauseError
     assert_equal errors[0].message, "undefined method `invalid_accessor' for {:existant_prop=>\"5\"}:Hash"
