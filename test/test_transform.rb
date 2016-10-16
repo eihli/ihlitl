@@ -3,42 +3,11 @@ require_relative '../lib/transform'
 
 class TestTransform < MiniTest::Test
   def setup
-    @destination_mock = MiniTest::Mock.new
-    @transform = IhliTL::Transform.new @destination_mock
+    @transform = IhliTL::Transform.new
   end
 
-  def test_run_sends_payload_to_destination
-    payload = 'some_payload'
-
-    @destination_mock.expect :run, nil, [payload]
-    @transform.run payload
-    @destination_mock.verify
-  end
-
-  class SubTransform < IhliTL::Transform
-    def transform(payload)
-      payload = payload + '_transformed'
-    end
-  end
-
-  def test_payload_gets_transformed
-    payload = 'some_payload'
-    @transform = SubTransform.new @destination_mock
-
-    @destination_mock.expect :run, nil, [payload + '_transformed']
-    @transform.run payload
-  end
-
-  class OptionalArgSubTransform < IhliTL::Transform
-    attr_accessor :some_arg
-    def initialize(destination, some_arg)
-      @some_arg = some_arg
-      super
-    end
-  end
-
-  def test_can_be_initialized_with_optional_args
-    transform = OptionalArgSubTransform.new('some_destination', 'some_arg')
-    assert_equal transform.some_arg, 'some_arg'
+  def test_transform_returns_payload_by_default
+    some_payload = {key: 'value'}
+    assert_equal some_payload, @transform.transform(some_payload)
   end
 end
