@@ -7,4 +7,6 @@ module IhliTL
       @payload = payload
     end
   end
+
+  class ContractError < StandardError; end
 end
