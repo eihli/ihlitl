@@ -7,7 +7,6 @@ module IhliTL
       @clauses = clauses
       @sub_contracts = sub_contracts
       @errors = []
-      @exceptions = []
     end
 
     def resolve(subject)
@@ -15,27 +14,23 @@ module IhliTL
         sub_contract.resolve(subject)
       end
 
-      if verify(subject)
+      @errors = verify(subject)
+      if @errors.length == 0
         return subject
       end
 
       fulfill(subject)
-      if verify(subject)
+      @errors = verify(subject)
+      if @errors.length == 0
         return subject
       else
-        if @exceptions.length > 0
-          raise StandardError.new @exceptions
-        elsif @errors.length > 0
-          raise ContractError.new "Verify failed with #{@errors}"
-        end
+        return @errors
       end
     end
 
     def verify(subject)
       @errors = []
-      @exceptions = []
       verify_clauses(subject)
-      @errors.length == 0 && @exceptions.length == 0
     end
 
     def fulfill(subject)
@@ -45,13 +40,15 @@ module IhliTL
     def verify_clauses(subject)
       @clauses.each do |clause|
         begin
-          if clause[:predicate].call(subject) == false
-            @errors << "Validation failed on #{clause[:description]} with #{subject}"
+          errors = clause.verify(subject)
+          if errors.length > 0
+            @errors.concat errors
           end
         rescue => e
-          @exceptions << e
+          @errors << e
         end
       end
+      @errors
     end
   end
 end

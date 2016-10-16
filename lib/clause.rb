@@ -11,6 +11,7 @@ module IhliTL
 
     def verify(subject)
       errors = []
+
       @options.each do |option|
         begin
           result = evaluate(subject, option)
@@ -18,17 +19,12 @@ module IhliTL
           errors << e
         end
 
-        if result == false
-          subject_value = subject.send(
-            option[:accessor].to_sym,
-            option[:property].to_sym
-          )
-          error = IhliTL::ClauseError.new "Error: expected #{option[:comparator]}, #{subject_value}, #{option[:value]} with subject #{subject}"
-          errors << error
+        unless result == true
+          errors << result
         end
       end
-      return errors unless errors.empty?
-      true
+
+      return errors
     end
 
     def evaluate(subject, option)
@@ -36,7 +32,11 @@ module IhliTL
         if subject.send(option[:accessor].to_sym, option[:property].to_sym).send(option[:comparator].to_sym, option[:value])
           true
         else
-          false
+          subject_value = subject.send(
+            option[:accessor].to_sym,
+            option[:property].to_sym
+          )
+          IhliTL::ClauseError.new "Error: #{option[:comparator]}, #{subject}, #{option[:accessor]}, #{option[:value]} but got #{subject_value}"
         end
       rescue => e
         raise IhliTL::ClauseError.new e
