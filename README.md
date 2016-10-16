@@ -2,6 +2,8 @@
 
 API to API ETL
 
+View an [example](examples/nfl.rb) to see how it works.
+
 ## Current State (Oct 13th)
 
 ### Pipeline Managers
