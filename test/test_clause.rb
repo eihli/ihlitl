@@ -4,7 +4,6 @@ require_relative '../lib/exceptions'
 
 class ClauseTest < MiniTest::Test
   def setup
-    @subject = {}
     @description = 'Clause description'
     @options = {}
   end
@@ -18,8 +17,8 @@ class ClauseTest < MiniTest::Test
     }
     subject = { prop: '6' }
 
-    clause = Clause.new subject, @description, [option]
-    errors = clause.verify
+    clause = Clause.new @description, [option]
+    errors = clause.verify(subject)
     assert_equal errors[0].message, "Error: expected #{option[:comparator]}, #{subject[:prop]}, #{option[:value]} with subject #{subject}"
   end
 
@@ -32,8 +31,8 @@ class ClauseTest < MiniTest::Test
     }
     subject = { prop: '5' }
 
-    clause = Clause.new subject, @description, [option]
-    assert_equal clause.verify, true
+    clause = Clause.new @description, [option]
+    assert_equal clause.verify(subject), true
   end
 
   def test_verify_captures_exceptions
@@ -45,8 +44,8 @@ class ClauseTest < MiniTest::Test
     }
     subject = { existant_prop: '5' }
 
-    clause = Clause.new subject, @description, [option]
-    errors = clause.verify
+    clause = Clause.new @description, [option]
+    errors = clause.verify(subject)
     assert_equal errors[0].class, IhliTL::ClauseError
     assert_equal errors[0].message, "undefined method `invalid_accessor' for {:existant_prop=>\"5\"}:Hash"
   end
