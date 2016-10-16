@@ -21,4 +21,17 @@ class ClauseTest < MiniTest::Test
     errors = clause.verify
     assert_equal errors[0], "Error: expected #{option[:comparator]}, #{subject[:prop]}, #{option[:value]} with subject #{subject}"
   end
+
+  def test_verify_returns_true_if_evaluates_to_true
+    option = {
+      accessor: '[]',
+      property: 'prop',
+      comparator: '==',
+      value: '5'
+    }
+    subject = { prop: '5' }
+
+    clause = Clause.new subject, @description, [option]
+    assert_equal clause.verify, true
+  end
 end

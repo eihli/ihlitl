@@ -2,8 +2,7 @@ require_relative '../lib/exceptions'
 
 module IhliTL
   class Contract
-    def initialize(subject, fulfillment_agent, clauses = [], sub_contracts = [])
-      @subject = subject
+    def initialize(fulfillment_agent, clauses = [], sub_contracts = [])
       @fulfillment_agent = fulfillment_agent
       @clauses = clauses
       @sub_contracts = sub_contracts
