@@ -7,11 +7,15 @@ module IhliTL
     end
 
     def resolve
-      verified_subject = @transform.call(@subject)
-      if verified_subject
-        verified_subject
-      else
-        raise "Contract Error"
+      begin
+        return @subject if verify(@subject)
+      rescue
+        transformed_subject = @transform.call(@subject)
+        if verify(transformed_subject)
+          transformed_subject
+        else
+          raise "Contract Error"
+        end
       end
     end
 
