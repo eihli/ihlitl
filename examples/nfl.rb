@@ -6,7 +6,8 @@ class WeatherContract < IhliTL::Contract
     [
       -> (subject) {
         subject[:zip_code].length == 5 &&
-        Float(subject[:temp_f])
+        Float(subject[:temp_f]) &&
+        subject[:response_status] == '200'
       }
     ]
   end
@@ -14,13 +15,21 @@ end
 
 class WeatherTransform < IhliTL::Transform
   def transform(payload)
-    payload.merge(ZipCodeContract.new(payload, -> (payload) {
+    payload.merge!(ZipCodeContract.new(payload, -> (payload) {
       ZipCodeTransform.new.transform(payload)
     }).resolve)
 
-    payload.merge(TemperatureContract.new({zip_code: '94110'}, -> (payload) {
+    payload.merge!(TemperatureContract.new({zip_code: '94110'}, -> (payload) {
       TemperatureTransform.new.transform(payload)
     }).resolve)
+
+    response = send_response_to_external_api
+    payload[:response_status] = response
+    payload
+  end
+
+  def send_response_to_external_api
+    '200'
   end
 end
 
