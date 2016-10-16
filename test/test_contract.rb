@@ -20,16 +20,7 @@ class TestContract < MiniTest::Test
     mock.verify
   end
 
-  def test_verify_calls_perform_work
-    mock = MiniTest::Mock.new
-    mock.expect :call, true, [@subject]
-    @contract.stub :perform_work, mock do
-      @contract.resolve
-    end
-    mock.verify
-  end
-
-  def test_resolve_runs_each_clause
+  def test_verify_runs_each_clause
     mock1 = MiniTest::Mock.new
     mock1.expect :call, true, [@subject]
     mock2 = MiniTest::Mock.new
@@ -37,7 +28,7 @@ class TestContract < MiniTest::Test
 
     clauses = [mock1, mock2]
     @contract.stub :clauses, clauses do
-      @contract.resolve
+      @contract.verify @subject
     end
 
     mock1.verify
