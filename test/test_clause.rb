@@ -34,4 +34,18 @@ class ClauseTest < MiniTest::Test
     clause = Clause.new subject, @description, [option]
     assert_equal clause.verify, true
   end
+
+  def test_verify_captures_exceptions
+    option = {
+      accessor: 'invalid_accessor',
+      property: 'prop',
+      comparator: '==',
+      value: '5'
+    }
+    subject = { existant_prop: '5' }
+
+    clause = Clause.new subject, @description, [option]
+    errors = clause.verify
+    assert_equal errors[0].class, NoMethodError
+  end
 end
