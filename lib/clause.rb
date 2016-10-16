@@ -10,21 +10,28 @@ class Clause
 
   def verify
     errors = []
-    begin
-      @options.each do |option|
-        unless evaluate(option)
-          suject_value = @subject.send(option[:accessor], option[:property])
-          errors << "Error: expected #{option[:comparator]}, #{subject_value}, #{option[:value]} with subject #{@subject}"
-        end
+    @options.each do |option|
+      result = evaluate(option)
+      if result == true
+      elsif result == false
+        subject_value = @subject.send(option[:accessor].to_sym, option[:property].to_sym)
+        errors << "Error: expected #{option[:comparator]}, #{subject_value}, #{option[:value]} with subject #{@subject}"
+      else
+        # If it's not true or false, it's an exception
+        errors << result
       end
       errors
-    rescue => e
-      errors << e
     end
+    return errors unless errors.empty?
+    true
   end
 
   def evaluate(option)
-    @subject.send(option[:accessor]).send(option[:comparator], option[:property])
+    begin
+      @subject.send(option[:accessor].to_sym, option[:property].to_sym).send(option[:comparator].to_sym, option[:value])
+    rescue => e
+      e
+    end
   end
 end
 

@@ -8,18 +8,17 @@ class ClauseTest < MiniTest::Test
     @options = {}
   end
 
-  def test_calls_option_accessor_on_option_property
+  def test_verify_returns_errors_if_evaluates_to_false
     option = {
       accessor: '[]',
-      property: 'propety',
-      comparator: '=='
+      property: 'prop',
+      comparator: '==',
+      value: '5'
     }
-
-    subject = MiniTest::Mock.new
-    subject.expect option[:accessor].to_sym, nil
+    subject = { prop: '6' }
 
     clause = Clause.new subject, @description, [option]
-    clause.verify
-    subject.verify
+    errors = clause.verify
+    assert_equal errors[0], "Error: expected #{option[:comparator]}, #{subject[:prop]}, #{option[:value]} with subject #{subject}"
   end
 end
