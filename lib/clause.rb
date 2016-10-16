@@ -2,7 +2,7 @@ require_relative './exceptions'
 
 module IhliTL
   class Clause
-    attr_reader :description
+    attr_reader :description, :options
 
     def initialize(description, options)
       @description = description
