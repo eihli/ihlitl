@@ -23,7 +23,8 @@ class Clause
           option[:accessor].to_sym,
           option[:property].to_sym
         )
-        errors << "Error: expected #{option[:comparator]}, #{subject_value}, #{option[:value]} with subject #{@subject}"
+        error = IhliTL::ClauseError.new "Error: expected #{option[:comparator]}, #{subject_value}, #{option[:value]} with subject #{@subject}"
+        errors << error
       end
     end
     return errors unless errors.empty?

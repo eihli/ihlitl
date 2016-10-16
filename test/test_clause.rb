@@ -20,7 +20,7 @@ class ClauseTest < MiniTest::Test
 
     clause = Clause.new subject, @description, [option]
     errors = clause.verify
-    assert_equal errors[0], "Error: expected #{option[:comparator]}, #{subject[:prop]}, #{option[:value]} with subject #{subject}"
+    assert_equal errors[0].message, "Error: expected #{option[:comparator]}, #{subject[:prop]}, #{option[:value]} with subject #{subject}"
   end
 
   def test_verify_returns_true_if_evaluates_to_true
@@ -48,5 +48,6 @@ class ClauseTest < MiniTest::Test
     clause = Clause.new subject, @description, [option]
     errors = clause.verify
     assert_equal errors[0].class, IhliTL::ClauseError
+    assert_equal errors[0].message, "undefined method `invalid_accessor' for {:existant_prop=>\"5\"}:Hash"
   end
 end
