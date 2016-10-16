@@ -1,7 +1,8 @@
-class Clause
-  class ClauseError < StandardError; end
+require_relative './exceptions'
 
+class Clause
   attr_reader :description
+
   def initialize(subject, description, options)
     @subject = subject
     @description = description
@@ -11,16 +12,19 @@ class Clause
   def verify
     errors = []
     @options.each do |option|
-      result = evaluate(option)
-      if result == true
-      elsif result == false
-        subject_value = @subject.send(option[:accessor].to_sym, option[:property].to_sym)
-        errors << "Error: expected #{option[:comparator]}, #{subject_value}, #{option[:value]} with subject #{@subject}"
-      else
-        # If it's not true or false, it's an exception
-        errors << result
+      begin
+        result = evaluate(option)
+      rescue IhliTL::ClauseError => e
+        errors << e
       end
-      errors
+
+      if result == false
+        subject_value = @subject.send(
+          option[:accessor].to_sym,
+          option[:property].to_sym
+        )
+        errors << "Error: expected #{option[:comparator]}, #{subject_value}, #{option[:value]} with subject #{@subject}"
+      end
     end
     return errors unless errors.empty?
     true
@@ -28,9 +32,13 @@ class Clause
 
   def evaluate(option)
     begin
-      @subject.send(option[:accessor].to_sym, option[:property].to_sym).send(option[:comparator].to_sym, option[:value])
+      if @subject.send(option[:accessor].to_sym, option[:property].to_sym).send(option[:comparator].to_sym, option[:value])
+        true
+      else
+        false
+      end
     rescue => e
-      e
+      raise IhliTL::ClauseError.new e
     end
   end
 end

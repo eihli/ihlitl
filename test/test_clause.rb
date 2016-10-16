@@ -1,5 +1,6 @@
 require 'minitest/autorun'
 require_relative '../lib/clause'
+require_relative '../lib/exceptions'
 
 class ClauseTest < MiniTest::Test
   def setup
@@ -46,6 +47,6 @@ class ClauseTest < MiniTest::Test
 
     clause = Clause.new subject, @description, [option]
     errors = clause.verify
-    assert_equal errors[0].class, NoMethodError
+    assert_equal errors[0].class, IhliTL::ClauseError
   end
 end

@@ -9,4 +9,6 @@ module IhliTL
   end
 
   class ContractError < StandardError; end
+
+  class ClauseError < StandardError; end
 end
