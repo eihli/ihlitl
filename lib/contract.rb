@@ -1,13 +1,15 @@
 module IhliTL
   class Contract
-    def initialize(subject)
+    def initialize(subject, transform)
       @subject = subject
+      @transform = transform
       @errors = []
     end
 
     def resolve
-      if verify(perform_work(@subject))
-        @subject
+      verified_subject = @transform.call(@subject)
+      if verified_subject
+        verified_subject
       else
         raise "Contract Error"
       end
@@ -22,10 +24,6 @@ module IhliTL
         end
       end
       @errors.compact.empty?
-    end
-
-    def perform_work(subject)
-      subject
     end
 
     def clauses
