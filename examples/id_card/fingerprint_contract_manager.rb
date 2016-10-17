@@ -52,7 +52,7 @@ contract_definitions = [
               }
             ]
           }
-                  ],
+        ],
         sub_contracts: []
       }
     ]
