@@ -4,7 +4,7 @@ module IhliTL
   class Clause
     attr_reader :description, :options
 
-    def initialize(description, options)
+    def initialize(description = 'Default clause', options = [])
       @description = description
       @options = options
     end
@@ -29,14 +29,19 @@ module IhliTL
 
     def evaluate(subject, option)
       begin
-        if subject.send(option[:accessor].to_sym, option[:property].to_sym).send(option[:comparator].to_sym, option[:value])
+        property = subject.send(option[:accessor].to_sym, option[:property].to_sym)
+
+        if option[:attribute]
+          actual_value = property.send(option[:attribute])
+        else
+          actual_value = property
+        end
+        expected_value = option[:value]
+
+        if actual_value.send(option[:comparator].to_sym, expected_value)
           true
         else
-          subject_value = subject.send(
-            option[:accessor].to_sym,
-            option[:property].to_sym
-          )
-          IhliTL::ClauseError.new "Error: #{option[:comparator]}, #{subject}, #{option[:accessor]}, #{option[:value]} but got #{subject_value}"
+          IhliTL::ClauseError.new "Error: #{option[:comparator]}, #{subject} #{option[:attribute]}, #{expected_value} but got #{actual_value}"
         end
       rescue => e
         raise IhliTL::ClauseError.new e
