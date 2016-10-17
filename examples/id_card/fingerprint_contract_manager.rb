@@ -5,7 +5,8 @@ contract_definitions = [
   {
     name: 'Fingerprint Contract',
     fulfillment_agent: {
-      class: FingerprintFulfillmentAgent
+      class: FingerprintFulfillmentAgent,
+      args: ['4aaeba74af287db4']
     },
     clauses: [
       {
@@ -34,4 +35,4 @@ contract_definitions = [
 
 fingerprint_contract_manager = IhliTL::ContractManager.new contract_definitions
 
-puts fingerprint_contract_manager.resolve({fingerprint: 'aasfasdfd'})
+puts fingerprint_contract_manager.resolve({fingerprint: '1'})

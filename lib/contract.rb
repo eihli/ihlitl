@@ -15,19 +15,21 @@ module IhliTL
     end
 
     def resolve(payload)
-      subject = payload[:subject]
+      @errors = []
 
       @sub_contracts.each do |sub_contract|
         sub_contract.resolve(payload)
       end
 
-      @errors = verify(payload[:subject])
+      @errors.concat verify(payload[:subject])
       if @errors.length == 0
         return payload
       end
 
+      @errors = []
       fulfill(payload[:subject])
-      @errors = verify(payload[:subject])
+
+      @errors.concat verify(payload[:subject])
       if @errors.length == 0
         return payload
       else
@@ -37,28 +39,32 @@ module IhliTL
     end
 
     def verify(subject)
-      @errors = []
       verify_clauses(subject)
     end
 
     def fulfill(subject)
       if @fulfillment_agent
-        @fulfillment_agent.run(subject)
+        begin
+          @fulfillment_agent.run(subject)
+        rescue => e
+          @errors.concat [e]
+        end
       end
     end
 
     def verify_clauses(subject)
+      accum_errors = []
       @clauses.each do |clause|
         begin
           errors = clause.verify(subject)
           if errors.length > 0
-            @errors.concat errors
+            accum_errors.concat errors
           end
         rescue => e
-          @errors << e
+          accum_errors.concat [e]
         end
       end
-      @errors
+      accum_errors
     end
   end
 end

@@ -9,7 +9,9 @@ module IhliTL
 
     def recursively_initialize_contracts(contract_definitions)
       contract_definitions.map do |contract_definition|
-        fulfillment_agent = contract_definition[:fulfillment_agent][:class].new # args?
+        fulfillment_agent = contract_definition[:fulfillment_agent][:class].new(
+          *contract_definition[:fulfillment_agent][:args]
+        )
         clauses = contract_definition[:clauses].map do |clause|
           name = clause[:name]
           assertions = clause[:assertions]
