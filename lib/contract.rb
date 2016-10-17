@@ -1,4 +1,5 @@
-require_relative '../lib/exceptions'
+require_relative './exceptions'
+require_relative './fulfillment_agent'
 
 module IhliTL
   class Contract
@@ -7,36 +8,31 @@ module IhliTL
     def initialize(fulfillment_agent = nil, clauses = [], sub_contracts = [])
       @fulfillment_agent = fulfillment_agent
       @clauses = clauses
-      @sub_contracts = sub_contracts
+      @sub_contracts = sub_contracts.map do |sub_contract|
+        sub_contract.new 
+      end
       @errors = []
     end
 
-    def resolve(subject, parent = nil)
-      @parent = parent
-      #ancestor = parent
-      #while ancestor
-      #  if ancestor.class == self.class
-      #    @errors << IhliTL::ContractError.new "Contract dependency loop."
-      #    return @errors
-      #  end
-      #  ancestor = ancestor.parent
-      #end
+    def resolve(payload)
+      subject = payload[:subject]
 
       @sub_contracts.each do |sub_contract|
-        sub_contract.resolve(subject)
+        sub_contract.resolve(payload)
       end
 
-      @errors = verify(subject)
+      @errors = verify(payload[:subject])
       if @errors.length == 0
-        return subject
+        return payload
       end
 
-      fulfill(subject)
-      @errors = verify(subject)
+      fulfill(payload[:subject])
+      @errors = verify(payload[:subject])
       if @errors.length == 0
-        return subject
+        return payload
       else
-        return @errors
+        payload[:errors].concat @errors
+        return payload
       end
     end
 

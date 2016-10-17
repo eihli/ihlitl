@@ -2,17 +2,17 @@ require_relative './exceptions'
 
 module IhliTL
   class Clause
-    attr_reader :description, :options
+    attr_reader :name, :assertions
 
-    def initialize(description = 'Default clause', options = [])
-      @description = description
-      @options = options
+    def initialize(name = 'Default clause', assertions)
+      @name = name
+      @assertions = assertions
     end
 
     def verify(subject)
       errors = []
 
-      @options.each do |option|
+      @assertions.each do |option|
         begin
           result = evaluate(subject, option)
         rescue IhliTL::ClauseError => e
@@ -23,7 +23,6 @@ module IhliTL
           errors << result
         end
       end
-
       return errors
     end
 
