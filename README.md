@@ -1,6 +1,6 @@
 # IhliTL
 
-Contracts for handling API to API integrations.
+Contracts for transforming and verifying some payload.
 
 ## Example
 
