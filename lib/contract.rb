@@ -8,9 +8,7 @@ module IhliTL
     def initialize(fulfillment_agent = nil, clauses = [], sub_contracts = [])
       @fulfillment_agent = fulfillment_agent
       @clauses = clauses
-      @sub_contracts = sub_contracts.map do |sub_contract|
-        sub_contract.new 
-      end
+      @sub_contracts = sub_contracts
       @errors = []
     end
 
@@ -47,7 +45,8 @@ module IhliTL
         begin
           @fulfillment_agent.run(subject)
         rescue => e
-          @errors.concat [e]
+          error = IhliTL::FulfillmentError.new @fulfillment_agent, subject
+          @errors.concat [error]
         end
       end
     end

@@ -1,13 +1,10 @@
 require_relative '../../lib/contract_manager'
 require_relative './fingerprint_fulfillment_agent'
+require_relative './fingerprint_get_fulfillment_agent'
 
 contract_definitions = [
   {
     name: 'Fingerprint Contract',
-    fulfillment_agent: {
-      class: FingerprintFulfillmentAgent,
-      args: ['4aaeba74af287db4']
-    },
     clauses: [
       {
         name: 'Fingerprint Clause',
@@ -17,7 +14,7 @@ contract_definitions = [
             accessor: '[]',
             attribute: 'length',
             comparator: '>',
-            value: 5
+            value: 3
           },
           {
             property: 'fingerprint',
@@ -29,7 +26,36 @@ contract_definitions = [
         ]
       }
     ],
-    sub_contracts: []
+    sub_contracts: [
+      {
+        name: 'Fingerprint Get Contract',
+        fulfillment_agent: {
+          class: FingerprintGetFulfillmentAgent,
+          args: ['4aaeba74af287db4']
+        },
+        clauses: [
+          {
+            name: 'Fingerprint Get Clauses',
+            assertions: [
+              {
+                property: 'response_status',
+                accessor: '[]',
+                comparator: '==',
+                value: '200'
+              },
+              {
+                property: 'fingerprint',
+                accessor: '[]',
+                attribute: 'length',
+                comparator: '>',
+                value: 3
+              }
+            ]
+          }
+                  ],
+        sub_contracts: []
+      }
+    ]
   }
 ]
 
