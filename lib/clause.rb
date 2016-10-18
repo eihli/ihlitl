@@ -40,7 +40,7 @@ module IhliTL
         if actual_value.send(option[:comparator].to_sym, expected_value)
           true
         else
-          IhliTL::ClauseError.new "Error: #{option[:comparator]}, #{subject} #{option[:attribute]}, #{expected_value} but got #{actual_value}"
+          IhliTL::ClauseError.new "Error: expected #{option[:comparator]}, #{expected_value}, #{actual_value} with #{subject}"
         end
       rescue => e
         raise IhliTL::ClauseError.new e

@@ -19,10 +19,10 @@ class ClauseTest < MiniTest::Test
 
     clause = IhliTL::Clause.new @description, [option]
     errors = clause.verify(subject)
-    assert_equal errors[0].message, "Error: expected #{option[:comparator]}, #{subject[:prop]}, #{option[:value]} with subject #{subject}"
+    assert_equal "Error: expected #{option[:comparator]}, #{option[:value]}, #{subject[:prop]} with #{subject}", errors[0].message
   end
 
-  def test_verify_returns_true_if_evaluates_to_true
+  def test_verify_returns_empty_list_if_true
     option = {
       accessor: '[]',
       property: 'prop',
@@ -32,7 +32,7 @@ class ClauseTest < MiniTest::Test
     subject = { prop: '5' }
 
     clause = IhliTL::Clause.new @description, [option]
-    assert_equal clause.verify(subject), true
+    assert_equal clause.verify(subject), []
   end
 
   def test_verify_captures_exceptions
