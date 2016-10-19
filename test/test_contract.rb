@@ -2,7 +2,7 @@ require 'minitest/autorun'
 require_relative '../lib/contract'
 
 class TestContract < MiniTest::Test
-  def get_contract_definition(verifier, assertions = [], fulfillment_agents = [])
+  def get_contract_definition(verifier = nil, assertions = [], fulfillment_agents = [])
     {
       name: 'Test Contract',
       clauses: [
@@ -57,6 +57,12 @@ class TestContract < MiniTest::Test
   end
 
   def test_fulfill_runs_fulfillment_agents
-
+    mock_fulfillment_agent = MiniTest::Mock.new
+    mock_fulfillment_agent.expect :fulfill, nil, [{}]
+    contract = IhliTL::Contract.new(
+      get_contract_definition(nil, [], [mock_fulfillment_agent])
+    )
+    contract.fulfill({})
+    mock_fulfillment_agent.verify
   end
 end

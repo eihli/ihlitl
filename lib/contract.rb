@@ -33,6 +33,12 @@ module IhliTL
       verified_clauses
     end
 
+    def fulfill(subject)
+      @fulfillment_agents.map do |fulfillment_agent|
+        fulfillment_agent.fulfill(subject)
+      end
+    end
+
     def init_clauses(clause_definitions)
       clause_definitions
     end
