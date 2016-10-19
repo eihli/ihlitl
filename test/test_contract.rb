@@ -2,15 +2,15 @@ require 'minitest/autorun'
 require_relative '../lib/contract'
 
 class TestContract < MiniTest::Test
-  def get_contract_definition(verifier, assertions)
+  def get_contract_definition(verifier, assertions = [], fulfillment_agents = [])
     {
       name: 'Test Contract',
       clauses: [
         name: 'Test Clause',
         verifier: verifier,
-        assertions: [assertions],
+        assertions: assertions,
       ],
-      fulfillment_agents: [],
+      fulfillment_agents: fulfillment_agents,
       contracts: []
     }
   end
@@ -37,7 +37,7 @@ class TestContract < MiniTest::Test
   end
 
   def test_verify_verifies_each_clause_with_assertion
-    contract_definition = get_contract_definition(@mock_verifier, @assertion)
+    contract_definition = get_contract_definition(@mock_verifier, [@assertion])
     @mock_verifier.expect :verify, [], [@assertion]
     contract = IhliTL::Contract.new contract_definition
     @mock_verifier.assert
@@ -45,10 +45,18 @@ class TestContract < MiniTest::Test
 
   def test_verify_returns_verified_clauses
     require 'ostruct'
+
     stub_verifier = OpenStruct.new(verify: nil)
-    contract = IhliTL::Contract.new get_contract_definition(stub_verifier, @assertion)
+    contract = IhliTL::Contract.new(
+      get_contract_definition(stub_verifier, [@assertion])
+    )
+
     stub_verifier.stub :verify, ['errors'] do
       assert_equal contract.verify({}), [{:clause=>"Test Clause", :assertions=>[{:assertion=>"Expect [:test_arg] == test_value", :result=>["errors"]}]}]
     end
+  end
+
+  def test_fulfill_runs_fulfillment_agents
+
   end
 end
