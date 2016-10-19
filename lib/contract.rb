@@ -23,7 +23,12 @@ module IhliTL
             clause[:assertions].map do |assertion|
               {
                 assertion: assertion[:name],
-                result: clause[:verifier].verify(assertion)
+                result:
+                  begin
+                    clause[:verifier].verify(assertion, subject)
+                  rescue => e
+                    e
+                  end
               }
             end
         }

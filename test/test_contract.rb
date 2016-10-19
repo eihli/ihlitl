@@ -1,4 +1,5 @@
 require 'minitest/autorun'
+require 'ostruct'
 require_relative '../lib/contract'
 
 class TestContract < MiniTest::Test
@@ -44,15 +45,13 @@ class TestContract < MiniTest::Test
   end
 
   def test_verify_returns_verified_clauses
-    require 'ostruct'
-
     stub_verifier = OpenStruct.new(verify: nil)
     contract = IhliTL::Contract.new(
       get_contract_definition(stub_verifier, [@assertion])
     )
 
-    stub_verifier.stub :verify, ['errors'] do
-      assert_equal contract.verify({}), [{:clause=>"Test Clause", :assertions=>[{:assertion=>"Expect [:test_arg] == test_value", :result=>["errors"]}]}]
+    stub_verifier.stub :verify, true do
+      assert_equal contract.verify({}), [{:clause=>"Test Clause", :assertions=>[{:assertion=>"Expect [:test_arg] == test_value", :result=>true}]}]
     end
   end
 
