@@ -7,7 +7,7 @@ module IhliTL
 
     def initialize(contract_definition, parent = nil)
       @name = contract_definition[:name]
-      @clauses = init_clauses(contract_definition[:clauses])
+      @clauses = contract_definition[:clauses]
       @fulfillment_agents = contract_definition[:fulfillment_agents]
       @contracts = contract_definition[:contracts]
       @payload = {
@@ -61,10 +61,6 @@ module IhliTL
       @fulfillment_agents.map do |fulfillment_agent|
         fulfillment_agent.fulfill(subject)
       end
-    end
-
-    def init_clauses(clause_definitions)
-      clause_definitions
     end
   end
 end
