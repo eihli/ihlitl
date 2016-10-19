@@ -5,65 +5,29 @@ module IhliTL
   class Contract
     attr_reader :parent
 
-    def initialize(fulfillment_agent = nil, clauses = [], sub_contracts = [])
-      @fulfillment_agent = fulfillment_agent
-      @clauses = clauses
-      @sub_contracts = sub_contracts
-      @errors = []
+    def initialize(contract_definition, parent = nil)
+      @name = contract_definition[:name]
+      @clauses = init_clauses(contract_definition[:clauses])
+      @fulfillment_agents = contract_definition[:fulfillment_agents]
+      @contracts = contract_definition[:contracts]
     end
 
-    def resolve(payload)
-      @errors = []
-
-      @sub_contracts.each do |sub_contract|
-        sub_contract.resolve(payload)
-      end
-
-      @errors.concat verify(payload[:subject])
-      if @errors.length == 0
-        return payload
-      end
-
-      @errors = []
-      fulfill(payload[:subject])
-
-      @errors.concat verify(payload[:subject])
-      if @errors.length == 0
-        return payload
-      else
-        payload[:errors].concat @errors
-        return payload
-      end
-    end
-
-    def verify(subject)
-      verify_clauses(subject)
-    end
-
-    def fulfill(subject)
-      if @fulfillment_agent
-        begin
-          @fulfillment_agent.run(subject)
-        rescue => e
-          error = IhliTL::FulfillmentError.new @fulfillment_agent, subject
-          @errors.concat [error]
+    def verify(payload)
+      @clauses.map do |clause|
+        clause[:assertions].map do |assertion|
+          #####
+          # Our 'Verifier' class here has a method
+          # named 'verify' which is also a method
+          # used by MiniTest::Mock.
+          # A problem when we try to mock this dependency...
+          #####
+          clause[:verifier].verify(assertion)
         end
       end
     end
 
-    def verify_clauses(subject)
-      accum_errors = []
-      @clauses.each do |clause|
-        begin
-          errors = clause.verify(subject)
-          if errors.length > 0
-            accum_errors.concat errors
-          end
-        rescue => e
-          accum_errors.concat [e]
-        end
-      end
-      accum_errors
+    def init_clauses(clause_definitions)
+      clause_definitions
     end
   end
 end
