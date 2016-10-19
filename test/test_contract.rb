@@ -2,6 +2,19 @@ require 'minitest/autorun'
 require_relative '../lib/contract'
 
 class TestContract < MiniTest::Test
+  def get_contract_definition(verifier, assertions)
+    {
+      name: 'Test Contract',
+      clauses: [
+        name: 'Test Clause',
+        verifier: verifier,
+        assertions: [assertions],
+      ],
+      fulfillment_agents: [],
+      contracts: []
+    }
+  end
+
   def setup
     @mock_verifier = MiniTest::Mock.new
 
@@ -15,28 +28,26 @@ class TestContract < MiniTest::Test
     @mock_verifier.instance_eval 'undef :verify'
 
     @assertion = {
+      name: 'Expect [:test_arg] == test_value',
       msg_chain: ['[]'],
       args: ['test_arg'],
       comparator: '==',
       value: 'test_value'
     }
-
-    @contract_definition = {
-      name: 'Test Contract',
-      clauses: [
-        name: 'Test Clause',
-        verifier: @mock_verifier,
-        assertions: [@assertion],
-      ],
-      fulfillment_agents: [],
-      contracts: []
-    }
   end
 
   def test_verify_verifies_each_clause_with_assertion
-    @mock_verifier.expect :verify, nil, [@assertion]
-    @contract = IhliTL::Contract.new @contract_definition
-    @contract.verify({})
+    contract_definition = get_contract_definition(@mock_verifier, @assertion)
+    @mock_verifier.expect :verify, [], [@assertion]
+    contract = IhliTL::Contract.new contract_definition
     @mock_verifier.assert
+  end
+
+  def test_verify_returns_verified_clauses
+    contract = nil
+    @mock_verifier.stub :verify, [] do
+      contract = IhliTL::Contract.new @contract_definition
+    end
+    assert_equal contract.verify({}), ['hi']
   end
 end

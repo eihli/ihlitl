@@ -10,20 +10,27 @@ module IhliTL
       @clauses = init_clauses(contract_definition[:clauses])
       @fulfillment_agents = contract_definition[:fulfillment_agents]
       @contracts = contract_definition[:contracts]
+      @payload = {
+        contract_name: @name
+      }
     end
 
-    def verify(payload)
-      @clauses.map do |clause|
-        clause[:assertions].map do |assertion|
-          #####
-          # Our 'Verifier' class here has a method
-          # named 'verify' which is also a method
-          # used by MiniTest::Mock.
-          # A problem when we try to mock this dependency...
-          #####
-          clause[:verifier].verify(assertion)
-        end
+    def verify(subject)
+      verified_clauses = @clauses.map do |clause|
+        {
+          clause: clause[:name],
+          assertions:
+            clause[:assertions].map do |assertion|
+              {
+                assertion: assertion[:name],
+                result: clause[:verifier].verify(assertion)
+              }
+            end
+        }
       end
+
+      @payload[:verified_clauses] = verified_clauses
+      verified_clauses
     end
 
     def init_clauses(clause_definitions)
