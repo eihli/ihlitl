@@ -1,6 +1,3 @@
-require_relative './exceptions'
-require_relative './fulfillment_agent'
-
 module IhliTL
   class Contract
     attr_reader :parent
