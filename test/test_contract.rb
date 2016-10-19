@@ -33,7 +33,7 @@ class TestContract < MiniTest::Test
     }
   end
 
-  def test_resolve_verifies_each_clause_with_payload
+  def test_verify_verifies_each_clause_with_assertion
     @mock_verifier.expect :verify, nil, [@assertion]
     @contract = IhliTL::Contract.new @contract_definition
     @contract.verify({})
