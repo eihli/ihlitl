@@ -64,4 +64,43 @@ class TestContract < MiniTest::Test
     contract.fulfill({})
     mock_fulfillment_agent.verify
   end
+
+  def test_resolve_tries_to_fulfill_if_clauses_raises
+    verifier_exception = -> (assertion, subject) { raise StandardError }
+    stub_verifier = OpenStruct.new(verify: nil)
+
+    mock_fulfillment_agent = MiniTest::Mock.new
+    mock_fulfillment_agent.expect :fulfill, nil, [{}]
+
+    contract = IhliTL::Contract.new get_contract_definition(
+      stub_verifier,
+      [@assertion],
+      [mock_fulfillment_agent]
+    )
+
+    stub_verifier.stub :verify, verifier_exception do
+      contract.resolve({})
+    end
+
+    mock_fulfillment_agent.verify
+  end
+
+  def test_resolve_does_not_fulfill_if_clause_has_does_not_raise
+    stub_verifier = OpenStruct.new(verify: [])
+
+    mock_fulfillment_agent = MiniTest::Mock.new
+    mock_fulfillment_agent.expect :fulfill, [], [{}]
+
+    contract = IhliTL::Contract.new get_contract_definition(
+      stub_verifier,
+      [@assertion],
+      [mock_fulfillment_agent]
+    )
+
+    stub_verifier.stub :verify, [] do
+      contract.resolve({})
+    end
+
+    assert_equal mock_fulfillment_agent.verify, false
+  end
 end

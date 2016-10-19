@@ -15,6 +15,12 @@ module IhliTL
       }
     end
 
+    def resolve(subject)
+      if verify(subject) != true
+        fulfill(subject)
+      end
+    end
+
     def verify(subject)
       verified_clauses = @clauses.map do |clause|
         {
