@@ -85,22 +85,32 @@ class TestContract < MiniTest::Test
     mock_fulfillment_agent.verify
   end
 
-  def test_resolve_does_not_fulfill_if_clause_has_does_not_raise
-    stub_verifier = OpenStruct.new(verify: [])
-
-    mock_fulfillment_agent = MiniTest::Mock.new
-    mock_fulfillment_agent.expect :fulfill, [], [{}]
+  def test_resolve_returns_modified_payload
+    stub_verifier = OpenStruct.new(verify: nil)
 
     contract = IhliTL::Contract.new get_contract_definition(
       stub_verifier,
       [@assertion],
-      [mock_fulfillment_agent]
+      nil
     )
 
-    stub_verifier.stub :verify, [] do
-      contract.resolve({})
-    end
+    expected_resolved_payload = {
+      contract_name: "Test Contract",
+      verified_clauses: [
+        {
+          clause: "Test Clause",
+          assertions: [
+            {
+              assertion: "Expect [:test_arg] == test_value",
+              result: true
+            }
+          ]
+        }
+      ]
+    }
 
-    assert_equal mock_fulfillment_agent.verify, false
+    stub_verifier.stub :verify, true do
+      assert_equal contract.resolve({}), expected_resolved_payload
+    end
   end
 end

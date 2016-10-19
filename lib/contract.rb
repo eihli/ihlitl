@@ -16,8 +16,23 @@ module IhliTL
     end
 
     def resolve(subject)
-      if verify(subject) != true
+      verified_clauses = verify(subject)
+      @payload[:verified_clauses] = verified_clauses
+      if get_errors(verified_clauses).flatten.length > 0
         fulfill(subject)
+      end
+      @payload
+    end
+
+    def get_errors(verified_clauses)
+      verified_clauses.map do |verified_clause|
+        verified_clause[:assertions].map do |assertion|
+          if assertion[:result] == true
+            nil
+          else
+            assertion[:result]
+          end
+        end.compact
       end
     end
 
@@ -39,8 +54,6 @@ module IhliTL
             end
         }
       end
-
-      @payload[:verified_clauses] = verified_clauses
       verified_clauses
     end
 
