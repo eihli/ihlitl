@@ -5,7 +5,9 @@ module IhliTL
     def initialize(contract_definition, parent = nil)
       @name = contract_definition[:name]
       @clauses = contract_definition[:clauses]
-      @fulfillment_agents = contract_definition[:fulfillment_agents]
+      @fulfillment_agents = init_fulfillment_agents(
+        contract_definition[:fulfillment_agents]
+      )
       @contracts = init_contracts(contract_definition[:contracts])
       @payload = {
         contract_name: @name,
@@ -21,16 +23,23 @@ module IhliTL
       end
     end
 
+    def init_fulfillment_agents(agent_definitions)
+      agent_definitions.map do |agent_definition|
+        agent_definition[:class].new *agent_definition[:args]
+      end
+    end
+
     def resolve(subject)
       @payload[:subject] = subject
-      verified_clauses = verify(subject)
-      @payload[:verified_clauses] = verified_clauses
-      if get_errors(verified_clauses).flatten.length > 0
+      if get_errors(verify(subject)).flatten.length > 0
         fulfill(subject)
       end
-      @contracts.each do |contract|
-        @payload[:contracts] << contract.resolve(subject.clone)
+      if get_errors(verify(subject)).flatten.length > 0
+        @contracts.each do |contract|
+          @payload[:contracts] << contract.resolve(subject.clone)
+        end
       end
+      @payload[:verified_clauses] = verify(subject)
       @payload
     end
 

@@ -1,5 +1,6 @@
 require_relative '../../lib/contract'
 require_relative '../../lib/verifier'
+require_relative './add_to_library_fulfillment_agent'
 
 definition = {
   name: 'Add Book To Library',
@@ -15,7 +16,10 @@ definition = {
       value: '201'
     }]
   ],
-  fulfillment_agents: [],
+  fulfillment_agents: [{
+    class: AddToLibraryFulfillmentAgent,
+    args: ['password']
+  }],
   contracts: [
     {
       name: 'Book Author',
@@ -38,4 +42,4 @@ definition = {
 }
 
 contract = IhliTL::Contract.new definition
-puts contract.resolve({library_response_code: '202', author_name: 'hi'})
+puts contract.resolve({})
