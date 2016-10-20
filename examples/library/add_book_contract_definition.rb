@@ -9,8 +9,8 @@ definition = {
     assertions: [{
       name: 'Response Code Assertion',
       msg_chain: ["[]"],
-      args: ["library_response_code"],
-      comaprator: "==",
+      args: [[:library_response_code]],
+      comparator: "==",
       value: "201"
     }]
   ],
@@ -19,4 +19,4 @@ definition = {
 }
 
 contract = IhliTL::Contract.new definition
-puts contract.resolve({})
+puts contract.resolve({library_response_code: '202'})
