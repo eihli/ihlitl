@@ -29,7 +29,7 @@ module IhliTL
         fulfill(subject)
       end
       @contracts.each do |contract|
-        @payload[:contracts] << contract.resolve(subject)
+        @payload[:contracts] << contract.resolve(subject.clone)
       end
       @payload
     end

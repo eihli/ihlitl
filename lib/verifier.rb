@@ -22,7 +22,7 @@ module IhliTL
         if actual.send(method_sym, expected)
           true
         else
-          "Error: #{@subject}, #{@assertion[:msg_chain]}, #{@assertion[:args]}, #{@assertion[:comparator]}, #{@assertion[:value]}"
+          "Error: #{@assertion[:msg_chain]}, #{@assertion[:args]}, #{@assertion[:comparator]}, #{@assertion[:value]}"
         end
       end
     end
