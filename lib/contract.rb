@@ -14,7 +14,6 @@ module IhliTL
         contracts: [],
         clauses: [],
         fulfillment_errors: [],
-        subject: {}
       }
     end
 
@@ -31,18 +30,18 @@ module IhliTL
     end
 
     def resolve(subject)
-      @payload[:subject] = subject
       if get_errors(verify(subject)).flatten.length > 0
         fulfill(subject)
       end
       if get_errors(verify(subject)).flatten.length > 0
         @contracts.each do |contract|
-          @payload[:contracts] << contract.resolve(subject.clone)
+          @payload[:contracts] << contract.resolve(subject)
         end
       end
       @payload[:clauses] = verify(subject)
+      fulfill(subject)
       @payload[:fulfillment_errors] = get_fulfillment_agent_errors(@fulfillment_agents)
-      @payload
+      [@payload, subject]
     end
 
     def get_errors(clauses)
@@ -61,6 +60,7 @@ module IhliTL
       clauses = @clauses.map do |clause|
         {
           clause: clause[:name],
+          subject: subject,
           assertions:
             clause[:assertions].map do |assertion|
               {

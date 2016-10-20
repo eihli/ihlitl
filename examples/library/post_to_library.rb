@@ -1,15 +1,15 @@
 require_relative '../../lib/exceptions'
 
-class AddToLibraryFulfillmentAgent
+class PostToLibrary
   attr_reader :error
 
-  def initialize(library_credentials)
-    @credentials = library_credentials
+  def initialize(api_key)
+    @api_key = api_key
     @error
   end
 
   def fulfill(subject)
-    if @credentials == 'password' && subject[:name] != nil
+    if @api_key == '12345' && subject[:name] != nil
       subject[:library_response_code] = '201'
     else
       subject[:library_response_code] = '404'

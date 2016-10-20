@@ -1,45 +1,59 @@
 require_relative '../../lib/contract'
 require_relative '../../lib/verifier'
-require_relative './add_to_library_fulfillment_agent'
+require_relative './post_to_library'
+require_relative './get_author_name'
+
+library_api_key = '12345'
+author_email_address = 'baz@example.com'
 
 definition = {
-  name: 'Add Book To Library',
+  name: 'Post Book To Library API',
   class: IhliTL::Contract,
+  fulfillment_agents: [{
+    class: PostToLibrary,
+    args: [library_api_key]
+  }],
   clauses: [
-    name: 'Added To Library Clause',
+    name: 'added to library',
     verifier: IhliTL::Verifier,
     assertions: [{
-      name: 'Response Code Assertion',
+      name: 'response code success',
       msg_chain: [:[]],
       args: [[:library_response_code]],
       comparator: '==',
       value: '201'
     }]
   ],
-  fulfillment_agents: [{
-    class: AddToLibraryFulfillmentAgent,
-    args: ['asdf']
-  }],
   contracts: [
     {
       name: 'Book Author',
       class: IhliTL::Contract,
+      fulfillment_agents: [{
+        class: GetAuthorName,
+        args: [author_email_address]
+      }],
       clauses: [
-        name: 'Book Author Clause',
+        name: 'book author name length',
         verifier: IhliTL::Verifier,
         assertions: [{
-          name: 'Book Author Name Exists',
+          name: 'greater than 2',
           msg_chain: [:[], :length],
           args: [[:author_name]],
           comparator: '>',
-          value: 5
+          value: 2
+        },
+        {
+          name: 'less than 10',
+          msg_chain: [:[], :length],
+          args: [[:author_name]],
+          comparator: '<',
+          value: 10
         }]
       ],
-      fulfillment_agents: [],
       contracts: []
     }
   ]
 }
 
 contract = IhliTL::Contract.new definition
-puts contract.resolve({author_name: 'foo', name: 'eric'})
+puts contract.resolve({email_address: 'foo@example.com'})

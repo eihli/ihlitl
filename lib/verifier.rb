@@ -3,7 +3,6 @@ module IhliTL
     class << self
       def verify(assertion, subject)
         @assertion = assertion
-        @subject = subject
         msgs = assertion[:msg_chain]
         args = assertion[:args]
         calls = msgs.zip(args)
