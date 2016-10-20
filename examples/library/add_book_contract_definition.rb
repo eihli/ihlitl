@@ -18,7 +18,7 @@ definition = {
   ],
   fulfillment_agents: [{
     class: AddToLibraryFulfillmentAgent,
-    args: ['password']
+    args: ['asdf']
   }],
   contracts: [
     {
@@ -42,4 +42,4 @@ definition = {
 }
 
 contract = IhliTL::Contract.new definition
-puts contract.resolve({})
+puts contract.resolve({author_name: 'foo', name: 'eric'})

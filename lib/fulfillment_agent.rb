@@ -1,13 +1,15 @@
+require_relative './exceptions'
+
 module IhliTL
   class FulfillmentAgent
     def initialize(*args)
-      # Pass in credentials or any pre-reqs/setup here
+      @errors = []
     end
 
-    def run(payload)
-      # Perform some transform
-      payload
-      # Raise TransformError if failed
+    def fulfill(subject)
+      subject
+    rescue => e
+      raise FulfillmentError.new self, subject
     end
   end
 end

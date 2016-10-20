@@ -13,14 +13,15 @@ module IhliTL
   class ClauseError < StandardError; end
 
   class FulfillmentError < StandardError
-    def initialize(fulfillment_agent, subject)
+    def initialize(fulfillment_agent, subject, e)
       @fulfillment_agent = fulfillment_agent
       @subject = subject
+      @e = e
       super message
     end
 
     def message
-      "Error in #{@fulfillment_agent} with subject #{@subject}"
+      "Error in #{@fulfillment_agent} with subject #{@subject}. Original error: #{@e}"
     end
   end
 end

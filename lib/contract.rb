@@ -12,7 +12,8 @@ module IhliTL
       @payload = {
         contract_name: @name,
         contracts: [],
-        verified_clauses: [],
+        clauses: [],
+        fulfillment_errors: [],
         subject: {}
       }
     end
@@ -39,12 +40,13 @@ module IhliTL
           @payload[:contracts] << contract.resolve(subject.clone)
         end
       end
-      @payload[:verified_clauses] = verify(subject)
+      @payload[:clauses] = verify(subject)
+      @payload[:fulfillment_errors] = get_fulfillment_agent_errors(@fulfillment_agents)
       @payload
     end
 
-    def get_errors(verified_clauses)
-      verified_clauses.map do |verified_clause|
+    def get_errors(clauses)
+      clauses.map do |verified_clause|
         verified_clause[:assertions].map do |assertion|
           if assertion[:result] == true
             nil
@@ -56,7 +58,7 @@ module IhliTL
     end
 
     def verify(subject)
-      verified_clauses = @clauses.map do |clause|
+      clauses = @clauses.map do |clause|
         {
           clause: clause[:name],
           assertions:
@@ -73,12 +75,18 @@ module IhliTL
             end
         }
       end
-      verified_clauses
+      clauses
     end
 
     def fulfill(subject)
       @fulfillment_agents.map do |fulfillment_agent|
         fulfillment_agent.fulfill(subject)
+      end
+    end
+
+    def get_fulfillment_agent_errors(fulfillment_agents)
+      fulfillment_agents.map do |fulfillment_agent|
+        fulfillment_agent.error
       end
     end
   end
