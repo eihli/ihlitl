@@ -1,69 +1,93 @@
-require_relative './exceptions'
-require_relative './fulfillment_agent'
-
 module IhliTL
   class Contract
     attr_reader :parent
 
-    def initialize(fulfillment_agent = nil, clauses = [], sub_contracts = [])
-      @fulfillment_agent = fulfillment_agent
-      @clauses = clauses
-      @sub_contracts = sub_contracts
-      @errors = []
+    def initialize(contract_definition, parent = nil)
+      @name = contract_definition[:name]
+      @clauses = contract_definition[:clauses]
+      @fulfillment_agents = init_fulfillment_agents(
+        contract_definition[:fulfillment_agents]
+      )
+      @contracts = init_contracts(contract_definition[:contracts])
+      @payload = {
+        contract_name: @name,
+        contracts: [],
+        clauses: [],
+        fulfillment_errors: [],
+        subject: {}
+      }
     end
 
-    def resolve(payload)
-      @errors = []
-
-      @sub_contracts.each do |sub_contract|
-        sub_contract.resolve(payload)
+    def init_contracts(contract_definitions)
+      contract_definitions.map do |contract_definition|
+        contract_definition[:class].new contract_definition, parent = self
       end
+    end
 
-      @errors.concat verify(payload[:subject])
-      if @errors.length == 0
-        return payload
+    def init_fulfillment_agents(agent_definitions)
+      agent_definitions.map do |agent_definition|
+        agent_definition[:class].new *agent_definition[:args]
       end
+    end
 
-      @errors = []
-      fulfill(payload[:subject])
+    def resolve(subject)
+      @payload[:subject] = subject
+      if get_errors(verify(subject)).flatten.length > 0
+        fulfill(subject)
+      end
+      if get_errors(verify(subject)).flatten.length > 0
+        @contracts.each do |contract|
+          @payload[:contracts] << contract.resolve(subject.clone)
+        end
+      end
+      @payload[:clauses] = verify(subject)
+      @payload[:fulfillment_errors] = get_fulfillment_agent_errors(@fulfillment_agents)
+      @payload
+    end
 
-      @errors.concat verify(payload[:subject])
-      if @errors.length == 0
-        return payload
-      else
-        payload[:errors].concat @errors
-        return payload
+    def get_errors(clauses)
+      clauses.map do |verified_clause|
+        verified_clause[:assertions].map do |assertion|
+          if assertion[:result] == true
+            nil
+          else
+            assertion[:result]
+          end
+        end.compact
       end
     end
 
     def verify(subject)
-      verify_clauses(subject)
+      clauses = @clauses.map do |clause|
+        {
+          clause: clause[:name],
+          assertions:
+            clause[:assertions].map do |assertion|
+              {
+                assertion: assertion[:name],
+                result:
+                  begin
+                    clause[:verifier].verify(assertion, subject)
+                  rescue => e
+                    e
+                  end
+              }
+            end
+        }
+      end
+      clauses
     end
 
     def fulfill(subject)
-      if @fulfillment_agent
-        begin
-          @fulfillment_agent.run(subject)
-        rescue => e
-          error = IhliTL::FulfillmentError.new @fulfillment_agent, subject
-          @errors.concat [error]
-        end
+      @fulfillment_agents.map do |fulfillment_agent|
+        fulfillment_agent.fulfill(subject)
       end
     end
 
-    def verify_clauses(subject)
-      accum_errors = []
-      @clauses.each do |clause|
-        begin
-          errors = clause.verify(subject)
-          if errors.length > 0
-            accum_errors.concat errors
-          end
-        rescue => e
-          accum_errors.concat [e]
-        end
+    def get_fulfillment_agent_errors(fulfillment_agents)
+      fulfillment_agents.map do |fulfillment_agent|
+        fulfillment_agent.error
       end
-      accum_errors
     end
   end
 end
