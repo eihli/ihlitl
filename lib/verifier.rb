@@ -2,6 +2,8 @@ module IhliTL
   class Verifier
     class << self
       def verify(assertion, subject)
+        @assertion = assertion
+        @subject = subject
         msgs = assertion[:msg_chain]
         args = assertion[:args]
         calls = msgs.zip(args)
@@ -14,7 +16,11 @@ module IhliTL
       end
 
       def ==(expected, actual)
-        expected == actual
+        if expected == actual
+          true
+        else
+          "Error: #{@subject}, #{@assertion[:msg_chain]}, #{@assertion[:args]}, #{@assertion[:comparator]}, #{@assertion[:value]}"
+        end
       end
     end
   end
