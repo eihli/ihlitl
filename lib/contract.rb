@@ -6,13 +6,19 @@ module IhliTL
       @name = contract_definition[:name]
       @clauses = contract_definition[:clauses]
       @fulfillment_agents = contract_definition[:fulfillment_agents]
-      @contracts = contract_definition[:contracts]
+      @contracts = init_contracts(contract_definition[:contracts])
       @payload = {
         contract_name: @name,
         contracts: [],
         verified_clauses: [],
         subject: {}
       }
+    end
+
+    def init_contracts(contract_definitions)
+      contract_definitions.map do |contract_definition|
+        contract_definition[:class].new contract_definition, parent = self
+      end
     end
 
     def resolve(subject)

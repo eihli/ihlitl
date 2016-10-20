@@ -8,15 +8,18 @@ module IhliTL
         args = assertion[:args]
         calls = msgs.zip(args)
         initial = subject.send(calls[0][0], *calls[0][1])
-        actual_value = calls[1..-1].reduce(initial) do |call|
-          subject.send(call[0], *call[1])
+        actual_value = calls[1..-1].reduce(initial) do |val, call|
+          if call[1] != nil
+            val.send(call[0], *call[1])
+          else
+            val.send(call[0])
+          end
         end
-
-        send(assertion[:comparator], assertion[:value], actual_value)
+        generic_comparison(assertion[:comparator], assertion[:value], actual_value)
       end
 
-      def ==(expected, actual)
-        if expected == actual
+      def generic_comparison(method_sym, expected, actual)
+        if actual.send(method_sym, expected)
           true
         else
           "Error: #{@subject}, #{@assertion[:msg_chain]}, #{@assertion[:args]}, #{@assertion[:comparator]}, #{@assertion[:value]}"
