@@ -106,6 +106,8 @@ class TestContract < MiniTest::Test
 
     expected_resolved_payload = {
       contract_name: "Test Contract",
+      contracts: [],
+      subject: {},
       verified_clauses: [
         {
           clause: "Test Clause",
@@ -121,6 +123,26 @@ class TestContract < MiniTest::Test
 
     stub_verifier.stub :verify, true do
       assert_equal contract.resolve({}), expected_resolved_payload
+    end
+  end
+
+  def test_resolves_all_subcontracts
+    stub_verifier = OpenStruct.new(verify: nil)
+
+    sub_contracts = [
+      MiniTest::Mock.new,
+      MiniTest::Mock.new
+    ]
+    sub_contracts.each do |contract|
+      contract.expect :resolve, nil, [{}]
+    end
+
+    contract_definition = get_contract_definition(stub_verifier, [], nil)
+    contract_definition[:contracts] = sub_contracts
+    contract = IhliTL::Contract.new contract_definition
+    contract.resolve({})
+    sub_contracts.each do |contract|
+      contract.verify
     end
   end
 end

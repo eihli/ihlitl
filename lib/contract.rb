@@ -8,15 +8,22 @@ module IhliTL
       @fulfillment_agents = contract_definition[:fulfillment_agents]
       @contracts = contract_definition[:contracts]
       @payload = {
-        contract_name: @name
+        contract_name: @name,
+        contracts: [],
+        verified_clauses: [],
+        subject: {}
       }
     end
 
     def resolve(subject)
+      @payload[:subject] = subject
       verified_clauses = verify(subject)
       @payload[:verified_clauses] = verified_clauses
       if get_errors(verified_clauses).flatten.length > 0
         fulfill(subject)
+      end
+      @contracts.each do |contract|
+        @payload[:contracts] << contract.resolve(subject)
       end
       @payload
     end
