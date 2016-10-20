@@ -22,9 +22,18 @@ class TestContract < MiniTest::Test
     # Our Verify object has the same 'verify' method name that MiniTest::Mock uses.
     # This is a hack-around since ours expects a param
 
-    def @mock_verifier.assert
-      -> { @mock_verifier.method(:verify) }
-    end
+
+    @mock_verifier.instance_eval {
+			def assert
+				@expected_calls.each do |name, expected|
+					actual = @actual_calls.fetch(name, nil)
+					raise MockExpectationError, "expected #{__call name, expected[0]}" unless actual
+					raise MockExpectationError, "expected #{__call name, expected[actual.size]}, got [#{__call name, actual}]" if
+						actual.size < expected.size
+				end
+				true
+			end
+    }
 
     @mock_verifier.instance_eval 'undef :verify'
 
@@ -39,8 +48,9 @@ class TestContract < MiniTest::Test
 
   def test_verify_verifies_each_clause_with_assertion
     contract_definition = get_contract_definition(@mock_verifier, [@assertion])
-    @mock_verifier.expect :verify, [], [@assertion]
+    @mock_verifier.expect :verify, [], [@assertion, {}]
     contract = IhliTL::Contract.new contract_definition
+		contract.verify({})
     @mock_verifier.assert
   end
 
