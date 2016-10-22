@@ -61,7 +61,7 @@ class TestContract < MiniTest::Test
     )
 
     stub_verifier.stub :verify, true do
-      assert_equal contract.verify({}), [{:clause=>"Test Clause", :assertions=>[{:assertion=>"Expect [:test_arg] == test_value", :result=>true}]}]
+      assert_equal contract.verify({}), [{:clause=>"Test Clause", :subject=>{}, :assertions=>[{:assertion=>"Expect [:test_arg] == test_value", :result=>true}]}]
     end
   end
 
