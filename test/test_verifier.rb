@@ -20,7 +20,7 @@ class TestVerifier < MiniTest::Test
   def test_verify_returns_errors
     verifier = IhliTL::Verifier
     subject = {key: 'wrong_value'}
-    error_msg = "Error: {:key=>\"wrong_value\"}, [:[]], [[:key]], ==, value"
+    error_msg = "Error: actual wrong_value expected: value for [:[]], [[:key]], =="
     assert_equal error_msg, verifier.verify(@assertion, subject)
   end
 end
