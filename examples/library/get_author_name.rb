@@ -6,9 +6,18 @@ class GetAuthorName < IhliTL::FulfillmentAgent
 
   def email_address_mappings
     {
-      'foo@example.com': 'Foo McFooerson',
-      'bar@example.com': 'Bar McBar',
-      'baz@example.com': 'Baz McBaz'
+      'foo@example.com': {
+        'name': 'Foo McFooerson',
+        'age': '25'
+      },
+      'bar@example.com': {
+        'name': 'Bar McBar',
+        'age': '33'
+      },
+      'baz@example.com': {
+        'name': 'Baz McBaz',
+        'age': '44'
+      }
     }
   end
 
@@ -18,9 +27,11 @@ class GetAuthorName < IhliTL::FulfillmentAgent
   end
 
   def fulfill(subject)
-    subject[:name] = email_address_mappings[@email_address.to_sym]
+    subject[:name] = email_address_mappings[@email_address.to_sym][:name]
     subject
   rescue => e
     @error = IhliTL::FulfillmentError.new self, subject, e
+  ensure
+    subject
   end
 end

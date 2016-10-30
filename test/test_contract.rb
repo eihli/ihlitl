@@ -22,7 +22,6 @@ class TestContract < MiniTest::Test
     # Our Verify object has the same 'verify' method name that MiniTest::Mock uses.
     # This is a hack-around since ours expects a param
 
-
     @mock_verifier.instance_eval {
 			def assert
 				@expected_calls.each do |name, expected|

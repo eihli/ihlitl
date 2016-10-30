@@ -1,3 +1,4 @@
+require 'json'
 require_relative '../../lib/contract'
 require_relative '../../lib/verifier'
 require_relative './post_to_library'
@@ -38,14 +39,14 @@ definition = {
         assertions: [{
           name: 'greater than 2',
           msg_chain: [:[], :length],
-          args: [[:author_name]],
+          args: [[:name]],
           comparator: '>',
           value: 2
         },
         {
           name: 'less than 10',
           msg_chain: [:[], :length],
-          args: [[:author_name]],
+          args: [[:name]],
           comparator: '<',
           value: 10
         }]
@@ -56,4 +57,4 @@ definition = {
 }
 
 contract = IhliTL::Contract.new definition
-puts contract.resolve({email_address: 'foo@example.com'})
+puts JSON.pretty_generate contract.resolve({})

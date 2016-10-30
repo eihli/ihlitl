@@ -12,7 +12,6 @@ module IhliTL
       @payload = {
         contract_name: @name,
         contracts: [],
-        clauses: [],
         fulfillment_errors: [],
       }
     end
@@ -30,18 +29,40 @@ module IhliTL
     end
 
     def resolve(subject)
+      # See if we have any errors. The contract may already be fulfilled
       if get_errors(verify(subject)).flatten.length > 0
         fulfill(subject)
       end
+
+      # See if we have any errors after trying to fulfill ourself
+      # If so, let's try to fulfill our sub-contracts
       if get_errors(verify(subject)).flatten.length > 0
         @contracts.each do |contract|
-          @payload[:contracts] << contract.resolve(subject)
+          contract.resolve(subject)
         end
       end
-      @payload[:clauses] = verify(subject)
-      fulfill(subject)
+
+      if get_errors(verify(subject)).flatten.length > 0
+        fulfill(subject)
+      end
+
+      # Store off relevant data and return
+      @payload[:verification_results] = verification_results(subject)
       @payload[:fulfillment_errors] = get_fulfillment_agent_errors(@fulfillment_agents)
+
+      # This return value gets lost on inner contracts but we have it
+      # for the future if we want to do something with it
       [@payload, subject]
+    end
+
+    def verification_results(subject)
+      result = {}
+      result[:name] = @name
+      result[:errors] = get_errors(verify(subject))
+      result[:contracts] = @contracts.map do |contract|
+        contract.verification_results(subject)
+      end
+      result
     end
 
     def get_errors(clauses)
@@ -58,16 +79,18 @@ module IhliTL
 
     def verify(subject)
       clauses = @clauses.map do |clause|
+        puts "Verifying #{clause[:name]}"
         {
           clause: clause[:name],
-          subject: subject,
+          subject: subject.clone,
           assertions:
             clause[:assertions].map do |assertion|
               {
                 assertion: assertion[:name],
                 result:
                   begin
-                    clause[:verifier].verify(assertion, subject)
+                    result = clause[:verifier].verify(assertion, subject)
+                    result
                   rescue => e
                     e
                   end
@@ -80,6 +103,7 @@ module IhliTL
 
     def fulfill(subject)
       @fulfillment_agents.map do |fulfillment_agent|
+        puts "Attempting to fulfill #{@name} with #{fulfillment_agent.class}"
         fulfillment_agent.fulfill(subject)
       end
     end
@@ -87,7 +111,7 @@ module IhliTL
     def get_fulfillment_agent_errors(fulfillment_agents)
       fulfillment_agents.map do |fulfillment_agent|
         fulfillment_agent.error
-      end
+      end.compact
     end
   end
 end

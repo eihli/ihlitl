@@ -9,12 +9,24 @@ class PostToLibrary
   end
 
   def fulfill(subject)
+    response = post_data_to_library_api(subject)
+    rescue => e
+    @error = IhliTL::FulfillmentError.new self, subject, e
+    ensure
+    subject
+  end
+
+  private
+
+  def post_data_to_library_api(subject)
+    response = {}
+    # Let's pretend we made an API call and the response was
+    # dependent on some value in our request payload
     if @api_key == '12345' && subject[:name] != nil
       subject[:library_response_code] = '201'
     else
       subject[:library_response_code] = '404'
     end
-  rescue => e
-    @error = IhliTL::FulfillmentError.new self, subject, e
+    subject
   end
 end
