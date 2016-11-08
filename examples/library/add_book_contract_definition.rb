@@ -4,6 +4,14 @@ require_relative '../../lib/verifier'
 require_relative './post_to_library'
 require_relative './get_author_name'
 
+# This example illustrates a simple scenario in which we have
+# an author's email address and want to make a POST request
+# to update a Library API to include this author's name.
+#
+# It will try to make fulfill the PostToLibrary contract first.
+# If that fails, it will try to fulfill it's sub-contracts (GetAuthorName),
+# then re-try the PostToLibrary fulfillment.
+
 library_api_key = '12345'
 author_email_address = 'baz@example.com'
 

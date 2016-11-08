@@ -79,7 +79,7 @@ module IhliTL
 
     def verify(subject)
       clauses = @clauses.map do |clause|
-        puts "Verifying #{clause[:name]}"
+        print "Verifying #{clause[:name]}"
         {
           clause: clause[:name],
           subject: subject.clone,
