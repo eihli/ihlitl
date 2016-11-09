@@ -66,3 +66,5 @@ definition = {
 
 contract = IhliTL::Contract.new definition
 puts JSON.pretty_generate contract.resolve({})
+
+# puts JSON.pretty_generate contract.resolve({name: 'Foo McFooerson'})
