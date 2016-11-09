@@ -57,3 +57,28 @@ See [an example definition](examples/library/add_book_contract_definition.rb).
 
 - Transforms and returns subject
 - Rescues from StandardError and places errors in an error attribute
+
+## Example Definition
+
+```
+definition = {
+  name: 'Post Book To Library API',
+  class: IhliTL::Contract,
+  fulfillment_agents: [{
+    class: PostToLibrary,
+    args: [library_api_key]
+  }],
+  clauses: [
+    name: 'added to library',
+    verifier: IhliTL::Verifier,
+    assertions: [{
+      name: 'response code success',
+      msg_chain: [:[]],
+      args: [[:library_response_code]],
+      comparator: '==',
+      value: '201'
+    }]
+  ],
+  contracts: []
+}
+```
