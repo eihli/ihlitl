@@ -42,6 +42,7 @@ module IhliTL
         end
       end
 
+      # Once our sub-contracts have been resolved, let's try ourselves again
       if get_errors(verify(subject)).flatten.length > 0
         fulfill(subject)
       end
@@ -50,6 +51,7 @@ module IhliTL
       @payload[:verification_results] = verification_results(subject)
       @payload[:fulfillment_errors] = get_fulfillment_agent_errors(@fulfillment_agents)
 
+      # TODO:
       # This return value gets lost on inner contracts but we have it
       # for the future if we want to do something with it
       [@payload, subject]
@@ -79,7 +81,7 @@ module IhliTL
 
     def verify(subject)
       clauses = @clauses.map do |clause|
-        print "Verifying #{clause[:name]}"
+        puts "Verifying #{clause[:name]}"
         {
           clause: clause[:name],
           subject: subject.clone,
@@ -88,6 +90,7 @@ module IhliTL
               {
                 assertion: assertion[:name],
                 result:
+                  # Rescue StandardErrors here since definitions are user input
                   begin
                     result = clause[:verifier].verify(assertion, subject)
                     result

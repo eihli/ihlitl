@@ -10,6 +10,8 @@ class PostToLibrary
 
   def fulfill(subject)
     response = post_data_to_library_api(subject)
+    # We may accessing user inputted values here and need to rescue
+    # StandardErrors and gracefully handle
     rescue => e
     @error = IhliTL::FulfillmentError.new self, subject, e
     ensure

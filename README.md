@@ -2,133 +2,58 @@
 
 Contracts for transforming and verifying some payload.
 
+Given some initial 'payload', some 'assertions' and some ways to 'fulfill' those assertions, make a best effort attempt to fulfill and verify all assertions.
+
 ## Example
 
-### If the Contract resolves with a success
+Imagine you want to get information about a book from a number of different sources and send that information to an API to be persisted in a single location.
 
-This will happen if a Contract is able to fulfill itself.
+You can write a 'PersistBookData' contract which has an assertion that you received a 201 response from the API.
 
-```
-fingerprint_contract_manager = IhliTL::ContractManager.new contract_definitions
-puts fingerprint_contract_manager.resolve({})
+You then write a 'PostBookApiFulfillmentAgent' which accepts a payload (Hash) and tries to access properties of that hash to get the data it needs to make the request.
 
-# {:subject=>{:fingerprint=>"61.4", :response_status=>"200"}, :errors=>[]}
-```
+If the request fails, pass the payload to each sub-contract and repeat the same process.
 
-### If the Contract resolves with a failure in a Clause assertion
+Once all sub-contracts have attempted their resolutions, try to verify/fulfill the contract once more.
 
-This will happen if a Contract is unable to fulfill itself.
+The results will be aggregated and returned.
 
-```
-contract_definitions[0][:clauses][0][:assertions][0][:value] = 5
-fingerprint_contract_manager = IhliTL::ContractManager.new contract_definitions
-puts fingerprint_contract_manager.resolve({})
+*Example sub-contracts:*
 
-# {:subject=>{:fingerprint=>"61.4", :response_status=>"200"}, :errors=>[#<IhliTL::ClauseError: Error: >, {:fingerprint=>"61.4", :response_status=>"200"} length, 5 but got 4>]}
-```
+- Do have have the books title? Let's get the author's name.
+  - Did we get the author name yet? Look up biographical info on Wikipedia.
+  - Get the ISBN number from Amazon's API
+    - Does the payload contain the ISBN number? Get availability from nearby libraries.
+- Do we have enough info to POST to the API? Go for it.
 
-### If the Contract resolves with an exception while trying to fulfill itself
+See [an example definition](examples/library/add_book_contract_definition.rb).
 
-This could happen if for example an external API was down, or your credentials are wrong.
-
-```
-contract_definitions[0][:clauses][0][:assertions][0][:value] = 3
-contract_definitions[0][:sub_contracts][0][:fulfillment_agent][:args][0] = 'invalid_api_key'
-fingerprint_contract_manager = IhliTL::ContractManager.new contract_definitions
-puts fingerprint_contract_manager.resolve({})
-
-#{:subject=>{}, :errors=>[#<IhliTL::FulfillmentError: Error in #<FingerprintGetFulfillmentAgent:0x007fc5f486df78> with subject {}>, #<IhliTL::ClauseError: Error: ==, {} , 200 but got >, #<IhliTL::ClauseError: undefined method `length' for nil:NilClass>, nil, #<IhliTL::ClauseError: undefined method `length' for nil:NilClass>, nil, #<IhliTL::ClauseError: undefined method `length' for nil:NilClass>, nil]}
-```
-
-### Contract Definition
-
-```
-require_relative '../../lib/contract_manager'
-require_relative './fingerprint_fulfillment_agent'
-require_relative './fingerprint_get_fulfillment_agent'
-
-contract_definitions = [
-  {
-    name: 'Fingerprint Contract',
-    clauses: [
-      {
-        name: 'Fingerprint Clause',
-        assertions: [
-          {
-            property: 'fingerprint',
-            accessor: '[]',
-            attribute: 'length',
-            comparator: '>',
-            value: 3
-          },
-          {
-            property: 'fingerprint',
-            accessor: '[]',
-            attribute: 'length',
-            comparator: '<',
-            value: 20
-          }
-        ]
-      }
-    ],
-    sub_contracts: [
-      {
-        name: 'Fingerprint Get Contract',
-        fulfillment_agent: {
-          class: FingerprintGetFulfillmentAgent,
-          args: ['4aaeba74af287db4']
-        },
-        clauses: [
-          {
-            name: 'Fingerprint Get Clauses',
-            assertions: [
-              {
-                property: 'response_status',
-                accessor: '[]',
-                comparator: '==',
-                value: '200'
-              },
-              {
-                property: 'fingerprint',
-                accessor: '[]',
-                attribute: 'length',
-                comparator: '>',
-                value: 3
-              }
-            ]
-          }
-        ],
-        sub_contracts: []
-      }
-    ]
-  }
-]
-```
-
-## Current State (Oct 16th)
+## Classes
 
 ### Contract
 
-- Have 0 or many `clauses` <Clause>
-- Have 0 or many `sub_contracts` <Contract>
-- `#resolve` ->
-  - Resolves `sub_contracts`
-  - Resolves itself
-    - Verifies `clauses`
-      - If verification fails
-        - Runs `#fulfill` on its `fulfillment_agent` <FulfillmentAgent>
-      - (TODO: Implement retriable logic)
-  - (TODO: Async resolves)
+#### \#initialize(contract\_definition, parent = nil)
 
-### Clause
+- Parses a contract definition
+- Initializes sub-contracts
+- Initializes fulfillment agents
 
-- Has 1 `subject`
-- Has 0 to many `options` <Hash>
-- `#verify` -> (TODO: Rename this to errors)
-  - Evaluates each `option` ->
-    - `subject.send(option[:accessor].to_sym, option[:property].to_sym).send(option[:comparator].to_sym, option[:value])`
-  - Returns list of errors/exceptions
+#### \#resolve(subject)
+
+- Verifies subject
+- Attempts to fulfill contract by passing subject to FulfillmentAgent#fulfill
+  - Rescues FulfillmentErrors
+- Passes subject to sub-contracts for fulfillment
+
+### Verifier
+
+#### \#verify(assertion, subject)
+
+- Returns true if the assertion is true, or an error message if it fails
 
 ### FulfillmentAgent
-- `#run(subject)` ->
-  - Transforms and returns `subject`
+
+#### \#fulfill(subject)
+
+- Transforms and returns subject
+- Rescues from StandardError and places errors in an error attribute
