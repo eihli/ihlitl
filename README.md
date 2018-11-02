@@ -10,18 +10,18 @@ That sounds very abstract and mushy. To put it more concretely:
 
 I am a company who works with several SaaS providers.
 
-NetSuite handles project management and scheduling.
-Intuit handles accounting and finances.
-GraphSuite handles converting csv files to graphs.
-GloboWorld handles media and marketing.
+- NetSuite handles project management and scheduling.
+- Intuit handles accounting and finances.
+- GraphSuite handles converting csv files to graphs.
+- GloboWorld handles media and marketing.
 
 When a project is marked as "complete" in NetSuite, I want an automated
 process to create a graph of the expense over time and to upload that graph
 to GloboWorld so our media company has access to it.
 
-So the trigger is "Project marked as *complete* in NetSuite".
+_So the trigger is:_ "Project marked as *complete* in NetSuite".
 
-The reaction is "Graph of expenses over time get uploaded to GloboWorld".
+_The reaction is:_ "Graph of expenses over time get uploaded to GloboWorld".
 
 The steps along the way include:
 
